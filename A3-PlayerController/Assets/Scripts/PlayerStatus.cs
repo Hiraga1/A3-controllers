@@ -9,9 +9,9 @@ public class PlayerStatus : MonoBehaviour
     
     public Sliding slide;
     public Throwing FPPshooting;
-    public CameraAim aimTPP;
-    public TPPThrowing TPPthrowing;
-    public CameraView enabler;
+    //public CameraAim aimTPP;
+    //public TPPThrowing TPPthrowing;
+    //public CameraView enabler;
     public LeapingTPP dash;
     public PlayerMovement aimFPP;
     public float stunDuration = 5f;
@@ -36,10 +36,10 @@ public class PlayerStatus : MonoBehaviour
                 pm.enabled = false;
                 slide.enabled = false;
                 FPPshooting.enabled = false;
-                aimTPP.enabled = false;
-                aimFPP.enabled = false;
-                TPPthrowing.enabled = false;
-                enabler.enabled = false;
+                //aimTPP.enabled = false;
+                //aimFPP.enabled = false;
+                //TPPthrowing.enabled = false;
+                //enabler.enabled = false;
                 dash.enabled = false;
                 stunParticle.SetActive (true);
                 stunParticle1.SetActive (true); 
@@ -51,10 +51,10 @@ public class PlayerStatus : MonoBehaviour
                 pm.enabled = true;
                 slide.enabled = true;
                 FPPshooting.enabled = true;
-                aimTPP.enabled = true;
-                aimFPP.enabled = true;
-                TPPthrowing.enabled = true;
-                enabler.enabled = true;
+                //aimTPP.enabled = true;
+                //aimFPP.enabled = true;
+                //TPPthrowing.enabled = true;
+                //enabler.enabled = true;
                 dash.enabled = true;
                 stunParticle.SetActive (false);
                 stunParticle1.SetActive (false);

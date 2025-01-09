@@ -10,9 +10,9 @@ public class PlayerMovementAdvanced : MonoBehaviour
     private InputActionAsset inputAsset;
     private InputActionMap player;
     private InputAction move;
-    private Third_Person_View ControllerControls;
+    //private Third_Person_View ControllerControls;
 
-    InputHandler inputManager;
+    //InputHandler inputManager;
     Vector3 moveDirection;
     Rigidbody rb;
     public Transform cameraObject;
@@ -125,71 +125,71 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     private void Awake()
     {
-        inputManager = GetComponent<InputHandler>();
+        //inputManager = GetComponent<InputHandler>();
          
     }
-    private void HandleMovement()
-    {
-        moveDirection = cameraObject.forward * inputManager.verticalInput;
-        moveDirection = moveDirection + cameraObject.right * inputManager.horizontalInput;
-        moveDirection.Normalize(); ;
-        moveDirection.y = 0;
+    //private void HandleMovement()
+    //{
+    //    moveDirection = cameraObject.forward * inputManager.verticalInput;
+    //    moveDirection = moveDirection + cameraObject.right * inputManager.horizontalInput;
+    //    moveDirection.Normalize(); ;
+    //    moveDirection.y = 0;
 
-        if (grounded)
-        {
-            rb.AddForce(moveDirection * moveSpeed * 10f, ForceMode.Force);
-
-
-        }
-        else if (!grounded)
-            rb.AddForce(moveDirection * moveSpeed * 10f * airMultiplier, ForceMode.Force);
-        if (OnSlope() && !exitingSlope)
-        {
-            rb.AddForce(GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
+    //    if (grounded)
+    //    {
+    //        rb.AddForce(moveDirection * moveSpeed * 10f, ForceMode.Force);
 
 
-            if (rb.velocity.y > 0)
-                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
-        }
-
-        // on ground
-        else if (grounded)
-        {
-            rb.AddForce(moveDirection * moveSpeed * 10f, ForceMode.Force);
+    //    }
+    //    else if (!grounded)
+    //        rb.AddForce(moveDirection * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+    //    if (OnSlope() && !exitingSlope)
+    //    {
+    //        rb.AddForce(GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
 
 
-        }
+    //        if (rb.velocity.y > 0)
+    //            rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+    //    }
 
-        // in air
-        else if (!grounded)
-            rb.AddForce(moveDirection * moveSpeed * 10f * airMultiplier, ForceMode.Force);
-
-        // turn gravity off while on slope
-    }
-
-    public void HandleAllMovement()
-    {
-        HandleMovement();
-    }
+    //    // on ground
+    //    else if (grounded)
+    //    {
+    //        rb.AddForce(moveDirection * moveSpeed * 10f, ForceMode.Force);
 
 
-    private void OnEnable()
-    {
+    //    }
+
+    //    // in air
+    //    else if (!grounded)
+    //        rb.AddForce(moveDirection * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+
+    //    // turn gravity off while on slope
+    //}
+
+    //public void HandleAllMovement()
+    //{
+    //    HandleMovement();
+    //}
 
 
-        ControllerControls.Enable();
-        player = inputAsset.FindActionMap("Player");
-    }
+    //private void OnEnable()
+    //{
+
+
+    //    //ControllerControls.Enable();
+    //    player = inputAsset.FindActionMap("Player");
+    //}
 
 
 
-    private void OnDisable()
-    {
+    //private void OnDisable()
+    //{
 
 
-        ControllerControls.Disable();
-        player = inputAsset.FindActionMap("Player");
-    }
+    //    //ControllerControls.Disable();
+    //    player = inputAsset.FindActionMap("Player");
+    //}
     private void Update()
     {
         Debug.Log(moveDirection);
@@ -476,7 +476,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
             enableMovementOnNextTouch = false;
             ResetRestrictions();
 
-            GetComponent<Grappling>().StopGrapple();
+            //GetComponent<Grappling>().StopGrapple();
 
         }
     }
@@ -501,41 +501,41 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
         return velocityXZ + velocityY;
     }
-    public IEnumerator PerformVaulting(string animName, MatchTargetParameters matchTargetParameters = null, Quaternion targetRotation = new Quaternion(), bool shouldRotate = false, bool mirrored = false)
-    {
-        inAction = true;
+    //public IEnumerator PerformVaulting(string animName, MatchTargetParameters matchTargetParameters = null, Quaternion targetRotation = new Quaternion(), bool shouldRotate = false, bool mirrored = false)
+    //{
+    //    inAction = true;
 
-        yield return null;
+    //    yield return null;
 
-        var animState = characterAnimator.GetNextAnimatorStateInfo(0);
+    //    var animState = characterAnimator.GetNextAnimatorStateInfo(0);
 
-        float rotateStartTime = (matchTargetParameters != null) ? matchTargetParameters.matchStartTime : 0;
+    //    float rotateStartTime = (matchTargetParameters != null) ? matchTargetParameters.matchStartTime : 0;
 
-        float time = 0.0f;
+    //    float time = 0.0f;
 
-        while (time <= animState.length)
-        {
-            time += Time.deltaTime;
-            float normalizedTime = time / animState.length;
+    //    while (time <= animState.length)
+    //    {
+    //        time += Time.deltaTime;
+    //        float normalizedTime = time / animState.length;
 
-            if (shouldRotate && normalizedTime > rotateStartTime)
-            {
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            }
-            if (matchTargetParameters != null)
-                MatchTarget(matchTargetParameters);
+    //        if (shouldRotate && normalizedTime > rotateStartTime)
+    //        {
+    //            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    //        }
+    //        if (matchTargetParameters != null)
+    //            MatchTarget(matchTargetParameters);
 
-            yield return null;
-        }
-        inAction = false;
-    }
+    //        yield return null;
+    //    }
+    //    inAction = false;
+    //}
 
-    private void MatchTarget(MatchTargetParameters matchtargetParams)
-    {
-        if (characterAnimator.isMatchingTarget || characterAnimator.IsInTransition(0)) return;
+    //private void MatchTarget(MatchTargetParameters matchtargetParams)
+    //{
+    //    if (characterAnimator.isMatchingTarget || characterAnimator.IsInTransition(0)) return;
 
-        characterAnimator.MatchTarget(matchtargetParams.matchPos, transform.rotation, matchtargetParams.matchBodyPart, new MatchTargetWeightMask(matchtargetParams.matchPosWeight, 0.0f), matchtargetParams.matchStartTime, matchtargetParams.matchTargetTime);
-    }
+    //    characterAnimator.MatchTarget(matchtargetParams.matchPos, transform.rotation, matchtargetParams.matchBodyPart, new MatchTargetWeightMask(matchtargetParams.matchPosWeight, 0.0f), matchtargetParams.matchStartTime, matchtargetParams.matchTargetTime);
+    //}
 
 
 }
