@@ -64,8 +64,8 @@ public class InputHandler : MonoBehaviour
         playerControls.FindAction(ActionName.Crouch).started += _ => handleCrouchInput(InputActionPhase.Started);
         playerControls.FindAction(ActionName.Crouch).canceled += _ => handleCrouchInput(InputActionPhase.Canceled);
 
-        playerControls.FindAction(ActionName.Slide).started += _ => handleCrouchInput(InputActionPhase.Started);
-        playerControls.FindAction(ActionName.Slide).canceled += _ => handleCrouchInput(InputActionPhase.Canceled);
+        playerControls.FindAction(ActionName.Slide).started += _ => handleSlideInput(InputActionPhase.Started);
+        playerControls.FindAction(ActionName.Slide).canceled += _ => handleSlideInput(InputActionPhase.Canceled);
 
         playerControls.FindAction(ActionName.Dash).performed += _ => handleDashInput();
 
@@ -207,10 +207,12 @@ public class InputHandler : MonoBehaviour
     {
         if (phase == InputActionPhase.Started)
         {
+            log("Slide press");
             onSlidePress?.Invoke();
         }
         if (phase == InputActionPhase.Canceled)
         {
+            log("Slide press");
             onSlideCancel?.Invoke();
         }
     }
@@ -221,11 +223,13 @@ public class InputHandler : MonoBehaviour
 
     public void RegisterOnDashPressed(Action action)
     {
+        
         onDashPressed += action;
     }
 
     private void handleDashInput()
     {
+        log("Dash press");
         onDashPressed?.Invoke();
     }
 

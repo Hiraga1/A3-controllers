@@ -7,7 +7,7 @@ public class LeapingTPP : MonoBehaviour
     private float leapCD;
     public float leapMaxCD;
     public float leapForce;
-    public PlayerMovementAdvanced pm;
+    public PlayerMovement pm;
     //private float horizontalMovement;
     //private float verticalMovement;
     public Transform orientation;
@@ -24,7 +24,7 @@ public class LeapingTPP : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        pm = GetComponent<PlayerMovementAdvanced>();
+        pm = GetComponent<PlayerMovement>();
         leapCD = 0;
     }
 

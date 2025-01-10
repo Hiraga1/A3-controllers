@@ -9,10 +9,11 @@ public class PlayerMovement : MonoBehaviour
     private Transform cameraTransform;
     private Vector2 movementInput;
     private Vector3 playerVelocity;
-    private bool groundedPlayer;
+    public bool groundedPlayer;
     private bool jumpInput;
     private bool isAiming;
     public bool isspirit;
+    private bool isCrouching;
 
     //[SerializeField]
     //private InputActionReference movementControl;
@@ -34,6 +35,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float gravityValue = -9.81f;
 
+    [Header("Crouching")]
+    
+    public float crouchYScale;
+    private float startYScale = 1;
+
+    [Header("Slope")]
+    public float maxSlopeAngle;
+    private RaycastHit slopeHit;
+    private bool exitingSlope;
+
     // Cinemachine FreeLook Camera (for normal movement)
     [SerializeField]
     private CinemachineVirtualCamera freeLookCam;
@@ -51,10 +62,16 @@ public class PlayerMovement : MonoBehaviour
     private float currentLerpTime;
 
     private InputHandler input;
+
+    private Rigidbody rb;
     private void Awake()
     {
+        rb = GetComponent<Rigidbody>();
         input = GetComponent<InputHandler>();
         input.RegisterOnJumpInput(jump);
+
+        input.RegisterOnCrouchPress(() => isCrouching = true);
+        input.RegisterOnCrouchCancel(() => isCrouching = false);
 
         input.RegisterOnAimPress(() => isAiming = true);
         input.RegisterOnAimCancel(() => isAiming = false);
@@ -216,6 +233,24 @@ public class PlayerMovement : MonoBehaviour
             Vector3 move = forward * movementInput.y + right * movementInput.x;
             controller.Move(move * Time.deltaTime * (playerSpeed / 2)); // slower speed while aiming
         }
+        if (!isCrouching)
+        {
+            Vector3 forward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up).normalized;
+            Vector3 right = Vector3.ProjectOnPlane(cameraTransform.right, Vector3.up).normalized;
+            Vector3 move = forward * movementInput.y + right * movementInput.x;
+            float currentspeed = isspirit ? spiritMulti * playerSpeed : playerSpeed;
+            controller.Move(move * Time.deltaTime * currentspeed);
+            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+        }
+        else
+        {
+            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
+            
+            Vector3 forward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up).normalized;
+            Vector3 right = Vector3.ProjectOnPlane(cameraTransform.right, Vector3.up).normalized;
+            Vector3 move = forward * movementInput.y + right * movementInput.x;
+            controller.Move(move * Time.deltaTime * (playerSpeed / 10));
+        }
     }
 
     private void gravity()
@@ -232,9 +267,22 @@ public class PlayerMovement : MonoBehaviour
             playerVelocity.y += Mathf.Sqrt(jumpHeight * -2.0f * gravityValue);  // Apply jump force
         }
     }
+    public bool OnSlope()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, startYScale * 0.5f + 0.3f))
+        {
 
+            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            return angle < maxSlopeAngle && angle != 0;
+        }
 
-   
+        return false;
+    }
+
+    public Vector3 GetSlopeMoveDirection(Vector3 direction)
+    {
+        return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
+    }
 
     private void OnDrawGizmos()
     {

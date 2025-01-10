@@ -1,14 +1,15 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
 
 public class Sliding : MonoBehaviour
 {
     [Header("References")]
     public Transform orientation;
-
+    private CharacterController controller;
     public Transform playerObj;
     private Rigidbody rb;
-    private PlayerMovementAdvanced pm;
+    private PlayerMovement pm;
 
     [Header("Sliding")]
     public float maxSlideTime;
@@ -18,6 +19,11 @@ public class Sliding : MonoBehaviour
 
     public float slideYScale;
     private float startYScale;
+
+    private Vector3 playerVelocity;
+
+    [SerializeField]
+    private float gravityValue = -9.81f;
 
     //[Header("Input")]
     //public KeyCode slideKey = KeyCode.LeftControl;
@@ -36,13 +42,15 @@ public class Sliding : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        pm = GetComponent<PlayerMovementAdvanced>();
-
+        pm = GetComponent<PlayerMovement>();
+        controller = GetComponent<CharacterController>();
         startYScale = playerObj.localScale.y;
     }
 
     private void Update()
     {
+        playerVelocity.y += gravityValue * Time.deltaTime;
+        controller.Move(playerVelocity * Time.deltaTime);
         //horizontalInput = Input.GetAxisRaw("Horizontal");
         //verticalInput = Input.GetAxisRaw("Vertical");
 
@@ -67,16 +75,16 @@ public class Sliding : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (pm.sliding)
+        
             SlidingMovement();
     }
 
     private void StartSlide()
     {
-        pm.sliding = true;
+        
 
         playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
-        rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+        rb.AddForce(Vector3.down * 100f, ForceMode.Impulse);
 
         slideTimer = maxSlideTime;
     }
@@ -106,8 +114,14 @@ public class Sliding : MonoBehaviour
 
     private void StopSlide()
     {
-        pm.sliding = false;
+        
 
         playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+    }
+    private void gravity()
+    {
+        // Apply gravity
+        playerVelocity.y += gravityValue * Time.deltaTime;
+        controller.Move(playerVelocity * Time.deltaTime);
     }
 }
