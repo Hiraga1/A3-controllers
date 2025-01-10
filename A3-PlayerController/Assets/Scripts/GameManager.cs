@@ -1,12 +1,14 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private PlayerInputManager inputManager;
     [SerializeField] private InputHandler[] players;
-
+    [SerializeField] TextMeshProUGUI timerText;
+    [SerializeField] float remainingTime;
     private void Awake()
     {
         inputManager.onPlayerJoined += input =>
@@ -25,5 +27,12 @@ public class GameManager : MonoBehaviour
             }
             */
         };
+    }
+    private void Update()
+    {
+        remainingTime -= Time.deltaTime;
+        int seconds = Mathf.FloorToInt(remainingTime % 60);
+        float milliSeconds = (remainingTime % 1) * 1000;
+        timerText.text = string.Format("{0:00}:{1:00}", seconds, milliSeconds);
     }
 }

@@ -501,41 +501,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
         return velocityXZ + velocityY;
     }
-    //public IEnumerator PerformVaulting(string animName, MatchTargetParameters matchTargetParameters = null, Quaternion targetRotation = new Quaternion(), bool shouldRotate = false, bool mirrored = false)
-    //{
-    //    inAction = true;
-
-    //    yield return null;
-
-    //    var animState = characterAnimator.GetNextAnimatorStateInfo(0);
-
-    //    float rotateStartTime = (matchTargetParameters != null) ? matchTargetParameters.matchStartTime : 0;
-
-    //    float time = 0.0f;
-
-    //    while (time <= animState.length)
-    //    {
-    //        time += Time.deltaTime;
-    //        float normalizedTime = time / animState.length;
-
-    //        if (shouldRotate && normalizedTime > rotateStartTime)
-    //        {
-    //            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-    //        }
-    //        if (matchTargetParameters != null)
-    //            MatchTarget(matchTargetParameters);
-
-    //        yield return null;
-    //    }
-    //    inAction = false;
-    //}
-
-    //private void MatchTarget(MatchTargetParameters matchtargetParams)
-    //{
-    //    if (characterAnimator.isMatchingTarget || characterAnimator.IsInTransition(0)) return;
-
-    //    characterAnimator.MatchTarget(matchtargetParams.matchPos, transform.rotation, matchtargetParams.matchBodyPart, new MatchTargetWeightMask(matchtargetParams.matchPosWeight, 0.0f), matchtargetParams.matchStartTime, matchtargetParams.matchTargetTime);
-    //}
+    
 
 
 }

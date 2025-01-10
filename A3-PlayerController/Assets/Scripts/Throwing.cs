@@ -36,7 +36,7 @@ public class Throwing : MonoBehaviour
     {
         if (readytoThrow)
         {
-            currentThrowForce += 20 * Time.deltaTime;
+            currentThrowForce++;
             if (currentThrowForce > maxThrowForce)
             {
                 currentThrowForce = maxThrowForce;
