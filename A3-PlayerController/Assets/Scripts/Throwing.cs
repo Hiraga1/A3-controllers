@@ -1,15 +1,12 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Throwing : MonoBehaviour
 {
     public Transform cam;
-    
+
     public Transform attackPoint;
-    
+
     public GameObject throwing;
 
     public float CD;
@@ -19,66 +16,88 @@ public class Throwing : MonoBehaviour
     public float upwardThrowForce;
     private float currentThrowForce;
 
-    bool readytoThrow;
+    private bool readytoThrow;
 
+    private InputHandler input;
 
-    void Start()
+    private void Awake()
     {
-        readytoThrow = true;
-
-
+        input = GetComponent<InputHandler>();
+        input.RegisterOnAimPress(prepareThrow);
+        input.RegisterOnAimCancel(checkThrow);
     }
 
-    // Update is called once per frame
-    private void Update()
+    private void Start()
     {
-        
-        if (Gamepad.current.rightTrigger.isPressed && readytoThrow)
+        readytoThrow = true;
+    }
+
+    private void prepareThrow()
+    {
+        if (readytoThrow)
         {
             currentThrowForce += 20 * Time.deltaTime;
             if (currentThrowForce > maxThrowForce)
             {
                 currentThrowForce = maxThrowForce;
             }
-           
-
-        }
-        if (Gamepad.current.rightTrigger.wasReleasedThisFrame && readytoThrow)
-        {
-            Throw();
-            currentThrowForce = minthrowForce;
-
-            //if (Input.GetKey(KeyCode.Mouse0))
-            //{
-
-            //    throwForce++;
-            //    if (throwForce > maxThrowForce)
-            //    {
-            //        throwForce = maxThrowForce;
-            //    }
-
-            //}
-            //else
-            //{
-            //    throwForce--;
-            //    if (throwForce < 1)
-            //    {
-            //        throwForce = 1;
-            //    }
-            //}
-
-
-            //if (Input.GetKeyUp(KeyCode.Mouse0) && readytoThrow) 
-            //{
-            //    Throw();
-
-            //}
         }
     }
 
-    
+    private void checkThrow()
+    {
+        if (readytoThrow)
+        {
+            performThrow();
+            currentThrowForce = minthrowForce;
+        }
+    }
 
-    private void Throw()
+    // Update is called once per frame
+    private void Update()
+    {
+        // switch to check prepare throw
+        //if (Gamepad.current.rightTrigger.isPressed && readytoThrow)
+        //{
+        //    currentThrowForce += 20 * Time.deltaTime;
+        //    if (currentThrowForce > maxThrowForce)
+        //    {
+        //        currentThrowForce = maxThrowForce;
+        //    }
+        //}
+        // switch to check throw
+        //if (Gamepad.current.rightTrigger.wasReleasedThisFrame && readytoThrow)
+        //{
+        //    performThrow();
+        //    currentThrowForce = minthrowForce;
+
+        //    //if (Input.GetKey(KeyCode.Mouse0))
+        //    //{
+        //    //    throwForce++;
+        //    //    if (throwForce > maxThrowForce)
+        //    //    {
+        //    //        throwForce = maxThrowForce;
+        //    //    }
+
+        //    //}
+        //    //else
+        //    //{
+        //    //    throwForce--;
+        //    //    if (throwForce < 1)
+        //    //    {
+        //    //        throwForce = 1;
+        //    //    }
+        //    //}
+
+        //    //if (Input.GetKeyUp(KeyCode.Mouse0) && readytoThrow)
+        //    //{
+        //    //    Throw();
+
+        //    //}
+        //}
+    }
+
+    private void performThrow()
     {
         readytoThrow = false;
 
@@ -90,7 +109,7 @@ public class Throwing : MonoBehaviour
 
         RaycastHit hit;
 
-        if(Physics.Raycast(cam.position, cam.forward, out hit, 1000f))
+        if (Physics.Raycast(cam.position, cam.forward, out hit, 1000f))
         {
             forceDirection = (hit.point - attackPoint.position).normalized;
         }
@@ -101,12 +120,9 @@ public class Throwing : MonoBehaviour
 
         Invoke(nameof(Cooldown), CD);
     }
-    
-
 
     private void Cooldown()
     {
         readytoThrow = true;
     }
-   
 }

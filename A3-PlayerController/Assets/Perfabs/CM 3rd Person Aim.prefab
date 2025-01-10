@@ -339,7 +339,7 @@ GameObject:
   - component: {fileID: 8880210851737222883}
   - component: {fileID: 8826531342952246945}
   - component: {fileID: 5936262115957588216}
-  - component: {fileID: 5777103638949968292}
+  - component: {fileID: 8219699929193931905}
   m_Layer: 0
   m_Name: CM 3rd Person Aim
   m_TagString: Untagged
@@ -433,7 +433,7 @@ MonoBehaviour:
   m_Damping: 0
   m_DampingWhenOccluded: 0
   m_OptimalTargetDistance: 0
---- !u!114 &5777103638949968292
+--- !u!114 &8219699929193931905
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -442,9 +442,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 8763129909778097231}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8fce4bd108661c4d9740aea3bc971ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 76371cc104ba59a43b1c37e5d5b4ddbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ActivationKey: 306
-  PriorityBoostAmount: 10
-  Reticle: {fileID: 2282004196590956308}

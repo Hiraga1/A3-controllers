@@ -1,6 +1,5 @@
-﻿using System.Collections;
+﻿using Cinemachine;
 using UnityEngine;
-using Cinemachine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
@@ -15,15 +14,14 @@ public class PlayerMovement : MonoBehaviour
     private bool isAiming;
     public bool isspirit;
 
-    [SerializeField]
-    private InputActionReference movementControl;
-    [SerializeField]
-    private InputActionReference spiritControl;
-    [SerializeField]
-    private InputActionReference jumpControl;
-    [SerializeField]
-    private InputActionReference aimControl;
-
+    //[SerializeField]
+    //private InputActionReference movementControl;
+    //[SerializeField]
+    //private InputActionReference spiritControl;
+    //[SerializeField]
+    //private InputActionReference jumpControl;
+    //[SerializeField]
+    //private InputActionReference aimControl;
 
     [SerializeField]
     private float playerSpeed = 2.0f;
@@ -52,6 +50,22 @@ public class PlayerMovement : MonoBehaviour
 
     private float currentLerpTime;
 
+    private InputHandler input;
+    private void Awake()
+    {
+        input = GetComponent<InputHandler>();
+        input.RegisterOnJumpInput(jump);
+
+        input.RegisterOnAimPress(() => isAiming = true);
+        input.RegisterOnAimCancel(() => isAiming = false);
+
+        input.RegisterOnSpiritPress(() => isspirit = true);
+        input.RegisterOnSpiritCancel(() => isspirit = false);
+
+        input.SetupCinemachineCameraControl(freeLookCam);
+        input.SetupCinemachineCameraControl(aimCamera);
+    }
+
     private void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -65,27 +79,29 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnEnable()
     {
-        movementControl.action.Enable();
-        jumpControl.action.Enable();
-        aimControl.action.Enable();
-        spiritControl.action.Enable();
+        //movementControl.action.Enable();
+        //jumpControl.action.Enable();
+        //aimControl.action.Enable();
+        //spiritControl.action.Enable();
     }
 
     private void OnDisable()
     {
-        movementControl.action.Disable();
-        jumpControl.action.Disable();
-        aimControl.action.Disable();
-        spiritControl.action.Disable();
+        //movementControl.action.Disable();
+        //jumpControl.action.Disable();
+        //aimControl.action.Disable();
+        //spiritControl.action.Disable();
     }
 
     void Update()
     {
         // Handle input
-        movementInput = movementControl.action.ReadValue<Vector2>();
-        jumpInput = jumpControl.action.triggered;
-        isAiming = aimControl.action.IsPressed();
-        isspirit = spiritControl.action.IsPressed();
+        //movementInput = movementControl.action.ReadValue<Vector2>();
+        //jumpInput = jumpControl.action.triggered;
+        //isAiming = aimControl.action.IsPressed();
+        //isspirit = spiritControl.action.IsPressed();
+
+        movementInput = input.MovementInput;
 
         // Switch between normal camera and aim camera
         SwitchCamera();
@@ -94,7 +110,7 @@ public class PlayerMovement : MonoBehaviour
         MovePlayer();
 
         // Handle jumping
-        Jump();
+        gravity();
 
         HandleFootstepsAndShake();
 
@@ -202,16 +218,19 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void Jump()
+    private void gravity()
     {
-        if (jumpInput && groundedPlayer)
-        {
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -2.0f * gravityValue);  // Apply jump force
-        }
-
         // Apply gravity
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
+    }
+
+    private void jump()
+    {
+        if (groundedPlayer)
+        {
+            playerVelocity.y += Mathf.Sqrt(jumpHeight * -2.0f * gravityValue);  // Apply jump force
+        }
     }
 
 
