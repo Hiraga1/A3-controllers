@@ -76,8 +76,8 @@ public class PlayerMovement : MonoBehaviour
         input.RegisterOnAimPress(() => isAiming = true);
         input.RegisterOnAimCancel(() => isAiming = false);
 
-        input.RegisterOnSpiritPress(() => isspirit = true);
-        input.RegisterOnSpiritCancel(() => isspirit = false);
+        input.RegisterOnSprintPress(() => isspirit = true);
+        input.RegisterOnSprintCancel(() => isspirit = false);
 
         input.SetupCinemachineCameraControl(freeLookCam);
         input.SetupCinemachineCameraControl(aimCamera);

@@ -18,7 +18,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
     Rigidbody rb;
     
     private bool isAiming;
-    public bool isspirit;
+    public bool isSprinting;
     private bool isCrouching;
 
     [SerializeField]
@@ -136,8 +136,8 @@ public class PlayerMovementAdvanced : MonoBehaviour
         input.RegisterOnAimPress(() => isAiming = true);
         input.RegisterOnAimCancel(() => isAiming = false);
 
-        input.RegisterOnSpiritPress(() => isspirit = true);
-        input.RegisterOnSpiritCancel(() => isspirit = false);
+        input.RegisterOnSprintPress(() => isSprinting = true);
+        input.RegisterOnSprintCancel(() => isSprinting = false);
 
         input.SetupCinemachineCameraControl(freeLookCam);
         input.SetupCinemachineCameraControl(aimCamera);
@@ -145,7 +145,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
     
     private void Update()
     {
-        Debug.Log(moveDirection);
+        Debug.Log(state);
         bool previousGrounded = grounded;
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, whatIsGround);
 
@@ -160,32 +160,22 @@ public class PlayerMovementAdvanced : MonoBehaviour
             }
         }
 
-        if (isspirit && grounded)
-        {
-            state = MovementState.sprinting;
-            desiredMoveSpeed = sprintSpeed;
-        }
-        else if (grounded)
+        
+        if (grounded)
         {
             state = MovementState.walking;
             desiredMoveSpeed = walkSpeed;
+            if (isSprinting)
+            {
+                state  = MovementState.sprinting;
+            }
+            else if (isCrouching)
+            {
+                state = MovementState.crouching;
+            }
         }
         
         
-        if (isCrouching)
-        {
-            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
-            rb.AddForce(Vector3.down * 10f, ForceMode.Impulse);
-            state = MovementState.crouching;
-            desiredMoveSpeed = crouchSpeed;
-        }
-        else if (!isCrouching)
-        {
-            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
-            state = MovementState.walking;
-            desiredMoveSpeed = walkSpeed;
-        }
-
         if (isAiming)
         {
             moveSpeed = 2;
@@ -219,7 +209,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
                 canDoubleJump = false;
             }
-        
+                                                                                    
 
     }
 

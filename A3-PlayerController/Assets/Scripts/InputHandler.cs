@@ -141,12 +141,12 @@ public class InputHandler : MonoBehaviour
 
     #region Sprint
 
-    public void RegisterOnSpiritPress(Action action)
+    public void RegisterOnSprintPress(Action action)
     {
         onSprintPress += action;
     }
 
-    public void RegisterOnSpiritCancel(Action action)
+    public void RegisterOnSprintCancel(Action action)
     {
         onSprintCancel += action;
     }
