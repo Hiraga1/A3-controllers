@@ -2,20 +2,37 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Windows;
 
 public class PlayerMovementAdvanced : MonoBehaviour
 {
-    private InputActionAsset inputAsset;
-    private InputActionMap player;
-    private InputAction move;
+    private Vector2 movementInput;
+    
     //private Third_Person_View ControllerControls;
 
-    //InputHandler inputManager;
+    private InputHandler input;
     Vector3 moveDirection;
     Rigidbody rb;
-    public Transform cameraObject;
+    
+    private bool isAiming;
+    public bool isspirit;
+    private bool isCrouching;
+
+    [SerializeField]
+    private CinemachineVirtualCamera freeLookCam;
+    // Cinemachine Virtual Camera (for aiming)
+    [SerializeField]
+    private CinemachineVirtualCamera aimCamera;
+    CinemachineBasicMultiChannelPerlin channelPerlin;
+    [SerializeField]
+    private float transitionDuration = 0.5f;
+    [SerializeField]
+    private GameObject Crosshair;
+
+    private float currentLerpTime;
 
 
 
@@ -49,11 +66,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
     public float crouchSpeed;
     public float crouchYScale;
     private float startYScale;
-
-    [Header("Keybinds")]
-    public KeyCode jumpKey = KeyCode.Space;
-    public KeyCode sprintKey = KeyCode.LeftShift;
-    public KeyCode crouchKey = KeyCode.C;
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -93,9 +105,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
         air,
         climbing,
         freeze,
-        swinging,
-        crouching,
-        grappling,
+        crouching,       
         jumping,
         leaping,
         wallrunning
@@ -104,99 +114,42 @@ public class PlayerMovementAdvanced : MonoBehaviour
     public bool sliding;
     public bool climbing;
     public bool freeze;
-    public bool swinging;
+    
     public bool sprinting;
-    public bool activeGrapple;
+   
     public bool leaping;
     public bool jumping;
     public bool wallrunning;
 
-    public bool inAction;
-
-    private void Start()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-
         readyToJump = true;
-
         startYScale = transform.localScale.y;
+        input = GetComponent<InputHandler>();
+        input.RegisterOnJumpInput(Jump);
+
+        input.RegisterOnCrouchPress(() => isCrouching = true);
+        input.RegisterOnCrouchCancel(() => isCrouching = false);
+
+        input.RegisterOnAimPress(() => isAiming = true);
+        input.RegisterOnAimCancel(() => isAiming = false);
+
+        input.RegisterOnSpiritPress(() => isspirit = true);
+        input.RegisterOnSpiritCancel(() => isspirit = false);
+
+        input.SetupCinemachineCameraControl(freeLookCam);
+        input.SetupCinemachineCameraControl(aimCamera);
     }
-
-    private void Awake()
-    {
-        //inputManager = GetComponent<InputHandler>();
-         
-    }
-    //private void HandleMovement()
-    //{
-    //    moveDirection = cameraObject.forward * inputManager.verticalInput;
-    //    moveDirection = moveDirection + cameraObject.right * inputManager.horizontalInput;
-    //    moveDirection.Normalize(); ;
-    //    moveDirection.y = 0;
-
-    //    if (grounded)
-    //    {
-    //        rb.AddForce(moveDirection * moveSpeed * 10f, ForceMode.Force);
-
-
-    //    }
-    //    else if (!grounded)
-    //        rb.AddForce(moveDirection * moveSpeed * 10f * airMultiplier, ForceMode.Force);
-    //    if (OnSlope() && !exitingSlope)
-    //    {
-    //        rb.AddForce(GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
-
-
-    //        if (rb.velocity.y > 0)
-    //            rb.AddForce(Vector3.down * 80f, ForceMode.Force);
-    //    }
-
-    //    // on ground
-    //    else if (grounded)
-    //    {
-    //        rb.AddForce(moveDirection * moveSpeed * 10f, ForceMode.Force);
-
-
-    //    }
-
-    //    // in air
-    //    else if (!grounded)
-    //        rb.AddForce(moveDirection * moveSpeed * 10f * airMultiplier, ForceMode.Force);
-
-    //    // turn gravity off while on slope
-    //}
-
-    //public void HandleAllMovement()
-    //{
-    //    HandleMovement();
-    //}
-
-
-    //private void OnEnable()
-    //{
-
-
-    //    //ControllerControls.Enable();
-    //    player = inputAsset.FindActionMap("Player");
-    //}
-
-
-
-    //private void OnDisable()
-    //{
-
-
-    //    //ControllerControls.Disable();
-    //    player = inputAsset.FindActionMap("Player");
-    //}
+    
     private void Update()
     {
         Debug.Log(moveDirection);
         bool previousGrounded = grounded;
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, whatIsGround);
 
-        MyInput();
+        
         SpeedControl();
         StateHandler();
         if (!previousGrounded && grounded)
@@ -207,7 +160,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
             }
         }
 
-        if (sprinting && grounded)
+        if (isspirit && grounded)
         {
             state = MovementState.sprinting;
             desiredMoveSpeed = sprintSpeed;
@@ -217,79 +170,39 @@ public class PlayerMovementAdvanced : MonoBehaviour
             state = MovementState.walking;
             desiredMoveSpeed = walkSpeed;
         }
-        // crouching Gamepad
-        if (Gamepad.current.buttonWest.wasPressedThisFrame)
+        
+        
+        if (isCrouching)
         {
             transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
             rb.AddForce(Vector3.down * 10f, ForceMode.Impulse);
             state = MovementState.crouching;
             desiredMoveSpeed = crouchSpeed;
         }
-        else if (Gamepad.current.buttonWest.wasReleasedThisFrame)
-        {
-            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
-            state = MovementState.walking;
-            desiredMoveSpeed = walkSpeed;
-        }
-        if (Input.GetKeyDown(crouchKey))
-        {
-            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
-            rb.AddForce(Vector3.down * 10f, ForceMode.Impulse);
-            state = MovementState.crouching;
-            desiredMoveSpeed = crouchSpeed;
-        }
-        else if (Input.GetKeyUp(crouchKey))
+        else if (!isCrouching)
         {
             transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
             state = MovementState.walking;
             desiredMoveSpeed = walkSpeed;
         }
 
-        // handle drag
-        if (grounded && !activeGrapple)
-        {
-            canDoubleJump = true;
-            rb.drag = groundDrag;
-        }
-
-        else
-            rb.drag = 0;
-        if (Input.GetKey(KeyCode.Mouse0))
+        if (isAiming)
         {
             moveSpeed = 2;
         }
-        if (Gamepad.current.rightTrigger.isPressed)
-        {
-            moveSpeed = 2;
-        }
-
-
     }
-
-    private void SprintPress()
-    {
-        sprinting = true;
-    }
-    private void SprintRelease()
-    {
-        sprinting = false;
-    }
-
-
     private void FixedUpdate()
     {
         if (climbingScript.exitingWall) return;
 
         rb.useGravity = !OnSlope();
     }
-
-    public void MyInput()
+    public void Jump()
     {
         
 
         // when to jump Gamepad
-        if (Gamepad.current.buttonEast.wasPressedThisFrame)
-        {
+        
             exitingSlope = true;
 
             if (readyToJump && grounded)
@@ -306,28 +219,8 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
                 canDoubleJump = false;
             }
-        }
+        
 
-        // when to jump Keyboard
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            exitingSlope = true;
-
-            if (readyToJump && grounded)
-            {
-                readyToJump = false;
-
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
-                jumping = true;
-                Invoke(nameof(ResetJump), jumpCooldown);
-            }
-            else if (canDoubleJump)
-            {
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
-                jumping = true;
-                canDoubleJump = false;
-            }
-        }
     }
 
     private void StateHandler()
@@ -399,14 +292,35 @@ public class PlayerMovementAdvanced : MonoBehaviour
         moveSpeed = desiredMoveSpeed;
     }
 
-   
+    private void MovePlayer()
+    {
+        // calculate movement direction
+        moveDirection = orientation.forward * movementInput.y + orientation.right * movementInput.x;
+
+        // on slope
+        if (OnSlope() && !exitingSlope)
+        {
+            rb.AddForce(GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
+
+            if (rb.velocity.y > 0)
+                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+        }
+
+        // on ground
+        else if (grounded)
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+
+        // in air
+        else if (!grounded)
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+
+        // turn gravity off while on slope
+        rb.useGravity = !OnSlope();
+    }
 
     private void SpeedControl()
     {
-        if (activeGrapple)
-        {
-            return;
-        }
+        
         // limiting speed on slope
         if (OnSlope() && !exitingSlope)
         {
@@ -427,36 +341,13 @@ public class PlayerMovementAdvanced : MonoBehaviour
             }
         }
     }
-
-
-
-
     private void ResetJump()
     {
         readyToJump = true;
 
         exitingSlope = false;
     }
-    private bool enableMovementOnNextTouch;
-
-    public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
-    {
-        activeGrapple = true;
-
-        velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
-
-        Invoke(nameof(SetVelocity), 0.1f);
-    }
-
-    private Vector3 velocityToSet;
-
-    private void SetVelocity()
-    {
-        enableMovementOnNextTouch = true;
-
-        rb.velocity = velocityToSet;
-    }
-
+    
     public bool OnSlope()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
@@ -468,40 +359,85 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
         return false;
     }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (enableMovementOnNextTouch)
-        {
-            enableMovementOnNextTouch = false;
-            ResetRestrictions();
-
-            //GetComponent<Grappling>().StopGrapple();
-
-        }
-    }
-    public void ResetRestrictions()
-    {
-        activeGrapple = false;
-    }
-
     public Vector3 GetSlopeMoveDirection(Vector3 direction)
     {
         return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
     }
-    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
+    private void SwitchCamera()
     {
-        float gravity = Physics.gravity.y;
-        float displacementY = endPoint.y - startPoint.y;
-        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
+        if (isAiming)
+        {
+            // Start camera transition to aim camera
+            if (freeLookCam.Priority > aimCamera.Priority)
+            {
+                currentLerpTime += Time.deltaTime;
+                if (currentLerpTime > transitionDuration)
+                    currentLerpTime = transitionDuration;
 
-        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
-        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
-            + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
+                // Lerp the Priority values
+                float lerpValue = currentLerpTime / transitionDuration;
+                freeLookCam.Priority = Mathf.RoundToInt(Mathf.Lerp(10, 0, lerpValue));
+                aimCamera.Priority = Mathf.RoundToInt(Mathf.Lerp(5, 15, lerpValue));
+                Crosshair.SetActive(true);
+                freeLookCam.gameObject.SetActive(false);
+                aimCamera.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            // Start camera transition back to FreeLook camera
+            if (aimCamera.Priority > freeLookCam.Priority)
+            {
+                currentLerpTime += Time.deltaTime;
+                if (currentLerpTime > transitionDuration)
+                    currentLerpTime = transitionDuration;
 
-        return velocityXZ + velocityY;
+                // Lerp the Priority values
+                float lerpValue = currentLerpTime / transitionDuration;
+                freeLookCam.Priority = Mathf.RoundToInt(Mathf.Lerp(0, 10, lerpValue));
+                aimCamera.Priority = Mathf.RoundToInt(Mathf.Lerp(15, 5, lerpValue));
+                Crosshair.SetActive(false);
+                freeLookCam.gameObject.SetActive(true);
+                aimCamera.gameObject.SetActive(false);
+                var pov = freeLookCam.GetCinemachineComponent<CinemachinePOV>();
+                if (pov != null)
+                {
+
+                    pov.m_HorizontalAxis.Value = gameObject.transform.eulerAngles.y;  // Reset Horizontal (yaw)
+                    pov.m_VerticalAxis.Value = 0f;    // Reset Vertical (pitch)
+                }
+            }
+        }
     }
+}
+
+   
+
+   
+        
+        
+       
+
+
+
     
 
 
-}
+
+
+
+
+
+
+   
+    
+
+   
+     
+
+
+
+    
+
+
+    

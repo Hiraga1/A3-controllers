@@ -7,7 +7,7 @@ public class Climbing : MonoBehaviour
     public Transform orientation;
 
     public Rigidbody rb;
-    public PlayerMovement pm;
+    public PlayerMovementAdvanced pm;
     public LayerMask whatIsWall;
 
     [Header("Climbing")]
@@ -23,7 +23,7 @@ public class Climbing : MonoBehaviour
 
     public float climbJumpBackForce;
 
-    public KeyCode jumpKey = KeyCode.Space;
+    
     public int climbJumps;
     private int climbJumpsLeft;
 
@@ -111,7 +111,7 @@ public class Climbing : MonoBehaviour
 
         bool newWall = frontWallHit.transform != lastWall || Mathf.Abs(Vector3.Angle(lastWallNormal, frontWallHit.normal)) > minWallNormalAngleChange;
 
-        if ((wallFront && newWall) || pm.groundedPlayer)
+        if ((wallFront && newWall) || pm.grounded)
         {
             climbTimer = maxClimbTime;
             climbJumpsLeft = climbJumps;

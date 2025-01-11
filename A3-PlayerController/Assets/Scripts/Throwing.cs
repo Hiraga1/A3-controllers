@@ -24,7 +24,7 @@ public class Throwing : MonoBehaviour
     {
         input = GetComponent<InputHandler>();
         input.RegisterOnAimPress(prepareThrow);
-        input.RegisterOnAimCancel(checkThrow);
+        input.RegisterOnAimCancel(performThrow);
     }
 
     private void Start()
@@ -36,7 +36,7 @@ public class Throwing : MonoBehaviour
     {
         if (readytoThrow)
         {
-            currentThrowForce++;
+            currentThrowForce += Time.deltaTime;
             if (currentThrowForce > maxThrowForce)
             {
                 currentThrowForce = maxThrowForce;
@@ -44,14 +44,7 @@ public class Throwing : MonoBehaviour
         }
     }
 
-    private void checkThrow()
-    {
-        if (readytoThrow)
-        {
-            performThrow();
-            currentThrowForce = minthrowForce;
-        }
-    }
+    
 
     // Update is called once per frame
     private void Update()
@@ -119,6 +112,8 @@ public class Throwing : MonoBehaviour
         projectilerb.AddForce(forceToAdd, ForceMode.Impulse);
 
         Invoke(nameof(Cooldown), CD);
+
+        currentThrowForce = minthrowForce;
     }
 
     private void Cooldown()

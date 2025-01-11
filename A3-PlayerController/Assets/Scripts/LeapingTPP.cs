@@ -7,9 +7,8 @@ public class LeapingTPP : MonoBehaviour
     private float leapCD;
     public float leapMaxCD;
     public float leapForce;
-    public PlayerMovement pm;
-    //private float horizontalMovement;
-    //private float verticalMovement;
+    public PlayerMovementAdvanced pm;
+    public Vector2 movementInput;
     public Transform orientation;
     public Transform target;
 
@@ -24,7 +23,7 @@ public class LeapingTPP : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        pm = GetComponent<PlayerMovement>();
+        pm = GetComponent<PlayerMovementAdvanced>();
         leapCD = 0;
     }
 
@@ -67,11 +66,4 @@ public class LeapingTPP : MonoBehaviour
         rb.AddForce(inputDirection * leapForce, ForceMode.Impulse);
     }
 
-    private void Dash()
-    {
-        rb.drag = 0;
-        Vector3 inputDirection = target.forward;
-
-        rb.AddForce(inputDirection * leapForce, ForceMode.Impulse);
-    }
 }
