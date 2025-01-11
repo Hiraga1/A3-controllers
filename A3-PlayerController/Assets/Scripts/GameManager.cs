@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
         {
             var index = inputManager.playerCount - 1;
             players[index].InputHandler.SetPlayerInput(input);
+            players[index].InputHandler.SetEnable(false);
 
             //manage gameobject spawned
             input.gameObject.transform.parent = transform;
