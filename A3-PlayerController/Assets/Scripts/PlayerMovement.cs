@@ -63,7 +63,9 @@ public class PlayerMovement : MonoBehaviour
 
     private InputHandler input;
 
+
     private Rigidbody rb;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -76,7 +78,7 @@ public class PlayerMovement : MonoBehaviour
         input.RegisterOnAimPress(() => isAiming = true);
         input.RegisterOnAimCancel(() => isAiming = false);
 
-        input.RegisterOnSpiritPress(() => isspirit = true);
+        input.RegisterOnSprintPress(() => isspirit = true);
         input.RegisterOnSpiritCancel(() => isspirit = false);
 
         input.SetupCinemachineCameraControl(freeLookCam);
@@ -85,29 +87,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        controller = GetComponent<CharacterController>();
+        //controller = GetComponent<CharacterController>();
         cameraTransform = Camera.main != null ? Camera.main.transform : throw new System.Exception("Main Camera not found!");
         channelPerlin = freeLookCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
 
         // Set initial priorities
         freeLookCam.Priority = 10;
         aimCamera.Priority = 5;
-    }
-
-    private void OnEnable()
-    {
-        //movementControl.action.Enable();
-        //jumpControl.action.Enable();
-        //aimControl.action.Enable();
-        //spiritControl.action.Enable();
-    }
-
-    private void OnDisable()
-    {
-        //movementControl.action.Disable();
-        //jumpControl.action.Disable();
-        //aimControl.action.Disable();
-        //spiritControl.action.Disable();
     }
 
     void Update()
@@ -124,16 +110,16 @@ public class PlayerMovement : MonoBehaviour
         SwitchCamera();
 
         // Handle movement
-        MovePlayer();
+        //MovePlayer();
 
         // Handle jumping
-        gravity();
+        //gravity();
 
-        HandleFootstepsAndShake();
+        //HandleFootstepsAndShake();
 
         // Update gravity
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        controller.Move(playerVelocity * Time.deltaTime);
+        //playerVelocity.y += gravityValue * Time.deltaTime;
+        //controller.Move(playerVelocity * Time.deltaTime);
     }
 
     private void SwitchCamera()

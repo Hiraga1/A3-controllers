@@ -15,8 +15,8 @@ public class PlayerStatus : MonoBehaviour
 
     private void Start()
     {
-        stunParticle.SetActive(false);
-        stunParticle1.SetActive(false);
+        //stunParticle.SetActive(false);
+        //stunParticle1.SetActive(false);
     }
     public void Stun()
     {

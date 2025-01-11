@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class InputHandler : MonoBehaviour
 {
     private InputActionMap playerControls;
+    public bool HasInputActionMap => playerControls != null;
 
     private Vector2 movementInput;
     public Vector2 MovementInput => movementInput;
@@ -49,14 +50,13 @@ public class InputHandler : MonoBehaviour
     {
         playerControls = input.actions.FindActionMap("Player");
 
-        playerControls.Enable();
         playerControls.FindAction(ActionName.Move).performed += i => movementInput = i.ReadValue<Vector2>();
         playerControls.FindAction(ActionName.Look).performed += i => lookInput = i.ReadValue<Vector2>();
 
         playerControls.FindAction(ActionName.Jump).performed += _ => invokeJumpPressed();
 
-        playerControls.FindAction(ActionName.Sprint).started += _ => handleSpiritInput(InputActionPhase.Started);
-        playerControls.FindAction(ActionName.Sprint).canceled += _ => handleSpiritInput(InputActionPhase.Canceled);
+        playerControls.FindAction(ActionName.Sprint).started += _ => handleSprintInput(InputActionPhase.Started);
+        playerControls.FindAction(ActionName.Sprint).canceled += _ => handleSprintInput(InputActionPhase.Canceled);
 
         playerControls.FindAction(ActionName.Aim).started += _ => handleAimInput(InputActionPhase.Started);
         playerControls.FindAction(ActionName.Aim).canceled += _ => handleAimInput(InputActionPhase.Canceled);
@@ -74,6 +74,12 @@ public class InputHandler : MonoBehaviour
             setupCinemachineControl(cam);
         }
         _storedCams.Clear();
+    }
+
+    public void SetEnable(bool value)
+    {
+        if (value) playerControls.Enable();
+        else playerControls.Disable();
     }
 
     private List<Cinemachine.CinemachineVirtualCamera> _storedCams = new List<Cinemachine.CinemachineVirtualCamera>();
@@ -105,7 +111,7 @@ public class InputHandler : MonoBehaviour
 
     private void invokeJumpPressed()
     {
-        log("jump press");
+        //log("jump press");
         onJumpPressed?.Invoke();
     }
 
@@ -127,12 +133,12 @@ public class InputHandler : MonoBehaviour
     {
         if (phase == InputActionPhase.Started)
         {
-            log("Crouch press");
+            //log("Crouch press");
             onCrouchPress?.Invoke();
         }
         if (phase == InputActionPhase.Canceled)
         {
-            log("Crouch cancel");
+            //log("Crouch cancel");
             onCrouchCancel?.Invoke();
         }
     }
@@ -141,7 +147,7 @@ public class InputHandler : MonoBehaviour
 
     #region Sprint
 
-    public void RegisterOnSpiritPress(Action action)
+    public void RegisterOnSprintPress(Action action)
     {
         onSprintPress += action;
     }
@@ -151,7 +157,7 @@ public class InputHandler : MonoBehaviour
         onSprintCancel += action;
     }
 
-    private void handleSpiritInput(InputActionPhase phase)
+    private void handleSprintInput(InputActionPhase phase)
     {
         if (phase == InputActionPhase.Started)
         {
