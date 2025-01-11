@@ -4372,7 +4372,7 @@ PrefabInstance:
       objectReference: {fileID: 1418831298}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.15295194
+      value: 0.32401913
       objectReference: {fileID: 0}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.y
@@ -6112,7 +6112,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1004210393
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7959,7 +7959,6 @@ GameObject:
   - component: {fileID: 1418831308}
   - component: {fileID: 1418831300}
   - component: {fileID: 1418831303}
-  - component: {fileID: 1418831304}
   - component: {fileID: 1418831307}
   - component: {fileID: 1418831306}
   - component: {fileID: 1418831305}
@@ -8068,30 +8067,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 1418831297}
   leapMaxCD: 5
-  leapForce: 20
+  leapForce: 200
   pm: {fileID: 1418831305}
   movementInput: {x: 0, y: 0}
   orientation: {fileID: 1085165664}
   target: {fileID: 462135207}
---- !u!114 &1418831304
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418831296}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0db19092eb39f814e849b85a555369dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cam: {fileID: 1371437892}
-  attackPoint: {fileID: 1113616401}
-  throwing: {fileID: 1388751411}
-  CD: 0
-  minthrowForce: 10
-  maxThrowForce: 1000
-  upwardThrowForce: 0
 --- !u!114 &1418831305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8110,27 +8090,27 @@ MonoBehaviour:
   transitionDuration: 0.5
   Crosshair: {fileID: 1510278455}
   walkSpeed: 5
-  sprintSpeed: 10
-  slideSpeed: 20
-  wallrunSpeed: 10
-  speedIncreaseMultiplier: 2
-  slopeIncreaseMultiplier: 1.5
+  sprintSpeed: 20
+  slideSpeed: 30
+  wallrunSpeed: 0
+  speedIncreaseMultiplier: 1.5
+  slopeIncreaseMultiplier: 2.5
   groundDrag: 5
-  jumpForce: 5
-  jumpCooldown: 1
+  jumpForce: 7
+  jumpCooldown: 1.1
   airMultiplier: 0.4
   canDoubleJump: 0
   leapCD: 0
   crouchSpeed: 3.5
-  crouchYScale: 1
+  crouchYScale: 0.5
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
     m_Bits: 1024
   grounded: 0
-  maxSlopeAngle: 30
+  maxSlopeAngle: 50
   climbingScript: {fileID: 1418831308}
-  throwScript: {fileID: 1418831304}
+  throwScript: {fileID: 0}
   status: {fileID: 1418831306}
   orientation: {fileID: 1085165664}
   maxFallingThreshold: 15
@@ -8156,7 +8136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pm: {fileID: 1418831305}
   slide: {fileID: 1418831307}
-  FPPshooting: {fileID: 1418831304}
+  FPPshooting: {fileID: 0}
   dash: {fileID: 1418831303}
   stunDuration: 5
   stunParticle: {fileID: 0}
@@ -8175,7 +8155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orientation: {fileID: 1085165664}
   playerObj: {fileID: 197684254}
-  maxSlideTime: 0.5
+  maxSlideTime: 1
   slideForce: 200
   slideYScale: 0.5
 --- !u!114 &1418831308
@@ -9675,7 +9655,7 @@ PrefabInstance:
       objectReference: {fileID: 1004210396}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.32371998
+      value: 0.32401896
       objectReference: {fileID: 0}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.y
@@ -10952,7 +10932,7 @@ GameObject:
   - component: {fileID: 1989770793}
   m_Layer: 10
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
