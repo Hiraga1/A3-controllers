@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Bullet
   - Ground
+  - Runner
+  - Chaser
   layers:
   - Default
   - TransparentFX

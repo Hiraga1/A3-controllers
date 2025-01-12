@@ -4766,15 +4766,15 @@ PrefabInstance:
       objectReference: {fileID: 1418831298}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.32401913
+      value: 0.3252144
       objectReference: {fileID: 0}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.0807633
+      value: 4.0807643
       objectReference: {fileID: 0}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.978981
+      value: -3.9789886
       objectReference: {fileID: 0}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7954,8 +7954,11 @@ MonoBehaviour:
   uiLogStates:
   - {fileID: 372688320}
   - {fileID: 681318916}
+  Player1: {fileID: 197684253}
+  Player2: {fileID: 316268405}
   timerText: {fileID: 982054324}
   countDownTime: 2
+  pm: {fileID: 1418831305}
 --- !u!1 &1219086988 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6600908829459346398, guid: 1b1d70ffdb7529e4696d1806a1b992ec, type: 3}
@@ -9370,6 +9373,7 @@ MonoBehaviour:
   status: {fileID: 1418831306}
   orientation: {fileID: 1085165664}
   maxFallingThreshold: 15
+  isChaser: 0
   state: 0
   sliding: 0
   climbing: 0
@@ -12231,7 +12235,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 13.000427, y: -27}
+  m_AnchoredPosition: {x: 13.000427, y: -27.000061}
   m_SizeDelta: {x: 744.171, y: 100}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1913732371
@@ -12475,7 +12479,7 @@ GameObject:
   - component: {fileID: 1989770793}
   m_Layer: 10
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12926,7 +12930,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 13.000427, y: -27}
+  m_AnchoredPosition: {x: 13.000427, y: -27.000061}
   m_SizeDelta: {x: 744.171, y: 100}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2130410883
