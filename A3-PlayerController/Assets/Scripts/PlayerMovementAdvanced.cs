@@ -55,13 +55,13 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     [Header("Jumping")]
     public float jumpForce;
-
     public float jumpCooldown;
     public float airMultiplier;
     private bool readyToJump;
     public bool canDoubleJump;
     private bool readyToLeap;
     public float leapCD;
+
 
     [Header("Crouching")]
     public float crouchSpeed;
@@ -96,6 +96,9 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     [Header("Animation")]
     private Animator characterAnimator;
+
+    
+    public bool isChaser;
 
     public MovementState state;
 
@@ -275,20 +278,9 @@ public class PlayerMovementAdvanced : MonoBehaviour
         {
             state = MovementState.sliding;
         }
-
-        //// check if desiredMoveSpeed has changed drastically
-        //if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && desiredMoveSpeed != 0)
-        //{
-        //    StopAllCoroutines();
-        //    StartCoroutine(SmoothlyLerpMoveSpeed());
-        //}
-        //else
-        //{
-        //    desiredMoveSpeed = desiredMoveSpeed;
-        //}
-
-        //lastDesiredMoveSpeed = desiredMoveSpeed;
     }
+
+        
 
     private IEnumerator SmoothlyLerpMoveSpeed()
     {
@@ -428,6 +420,13 @@ public class PlayerMovementAdvanced : MonoBehaviour
                     pov.m_VerticalAxis.Value = 0f;    // Reset Vertical (pitch)
                 }
             }
+        }
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Runner")
+        {
+           
         }
     }
 }

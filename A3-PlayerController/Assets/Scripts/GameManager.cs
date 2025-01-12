@@ -8,11 +8,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PlayerInputManager inputManager;
     [SerializeField] private PlayerMovementAdvanced[] players;
     [SerializeField] private PlayerLogState[] uiLogStates;
-
+    [SerializeField] private GameObject Player1;
+    [SerializeField] private GameObject Player2;
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private float countDownTime;
+    [SerializeField] private PlayerMovementAdvanced pm;
     private float currentCountdown;
 
+    private int RandomPicker;
     public bool IsPlaying { get; private set; }
 
     private List<PlayerInput> storedInput = new List<PlayerInput>();
@@ -46,6 +49,7 @@ public class GameManager : MonoBehaviour
 
     private void startGame()
     {
+        PlayerRandomizer();
         for (int i = 0; i < players.Length; i++)
         {
             players[i].InputHandler.SetEnable(true);
@@ -64,5 +68,30 @@ public class GameManager : MonoBehaviour
         }
         timerText.gameObject.SetActive(currentCountdown > 0);
         timerText.text = currentCountdown.NiceFloat(1);
+
     }
+    private void PlayerRandomizer()
+    {
+        RandomPicker = Random.Range(0, 100);
+        
+        if (RandomPicker < 50)
+        {
+            
+            Player1.tag = "Runner";
+            
+            Player2.tag = "Chaser";
+        }
+        else if (RandomPicker > 50)
+        {
+            Player1.tag = "Chaser";
+            
+            Player2.tag = "Runner";
+        }
+    }
+    
 }
+            
+
+            
+
+
