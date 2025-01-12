@@ -1426,7 +1426,7 @@ Transform:
   m_GameObject: {fileID: 219436292}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 6.25, z: 75.549995}
+  m_LocalPosition: {x: -42.7, y: 6.54, z: 75.549995}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4766,7 +4766,7 @@ PrefabInstance:
       objectReference: {fileID: 1418831298}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.62290144
+      value: 0.32401913
       objectReference: {fileID: 0}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.y
@@ -6450,7 +6450,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.9446263, y: 4.5317316, z: 81.69741}
+  m_LocalPosition: {x: -47.644627, y: 4.8217316, z: 81.69741}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7955,7 +7955,7 @@ MonoBehaviour:
   - {fileID: 372688320}
   - {fileID: 681318916}
   timerText: {fileID: 982054324}
-  countDownTime: 1
+  countDownTime: 2
 --- !u!1 &1219086988 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6600908829459346398, guid: 1b1d70ffdb7529e4696d1806a1b992ec, type: 3}
@@ -9243,7 +9243,7 @@ Transform:
   m_GameObject: {fileID: 1418831296}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5.48, z: 78.7}
+  m_LocalPosition: {x: -42.7, y: 5.77, z: 78.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -9297,14 +9297,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418831296}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc62e09295ca33a40b1f0d2a05db37f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 1418831297}
   leapMaxCD: 5
-  leapForce: 20
+  leapForce: 200
   pm: {fileID: 1418831305}
   movementInput: {x: 0, y: 0}
   orientation: {fileID: 1085165664}
@@ -9316,7 +9316,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418831296}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0db19092eb39f814e849b85a555369dc, type: 3}
   m_Name: 
@@ -9346,7 +9346,7 @@ MonoBehaviour:
   transitionDuration: 0.5
   Crosshair: {fileID: 0}
   walkSpeed: 5
-  sprintSpeed: 10
+  sprintSpeed: 7
   slideSpeed: 20
   wallrunSpeed: 10
   speedIncreaseMultiplier: 2
@@ -9357,8 +9357,8 @@ MonoBehaviour:
   airMultiplier: 0.4
   canDoubleJump: 0
   leapCD: 0
-  crouchSpeed: 3.5
-  crouchYScale: 1
+  crouchSpeed: 1
+  crouchYScale: 0.5
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
@@ -9404,7 +9404,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418831296}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bef3bf2864a16354fa4468dfb1538c94, type: 3}
   m_Name: 
@@ -9421,7 +9421,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418831296}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3db90687b7ca15b418482eafa837fe0d, type: 3}
   m_Name: 
@@ -11045,7 +11045,7 @@ PrefabInstance:
       objectReference: {fileID: 1004210396}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.32371998
+      value: 0.32401896
       objectReference: {fileID: 0}
     - target: {fileID: 8880210851737222883, guid: 2a8cc831ff0a2b842baec4f7e2afd4cf, type: 3}
       propertyPath: m_LocalPosition.y
