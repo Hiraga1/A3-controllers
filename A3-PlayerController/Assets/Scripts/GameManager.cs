@@ -15,18 +15,35 @@ public class GameManager : MonoBehaviour
     //[SerializeField] private GameObject Player2;
 
     [SerializeField] private TextMeshProUGUI timerText;
-    [SerializeField] private float countDownTime;
-    private float currentCountdown;
+    [SerializeField] private TextMeshProUGUI roundNumberTxt;
+    [SerializeField] private TextMeshProUGUI scroreBoardTxt;
+    [SerializeField] private CanvasGroup inGameGroup;
+
+    [Space]
+    [Header("Time Config")]
+    [SerializeField] private float countDownTime = 2;
+    [SerializeField] private float roundTime = 30;
+    [SerializeField] private float freezeChaserTime = 5;
+    [SerializeField] private float nextRoundTime = 5;
 
     [Header("Trans")]
     [SerializeField] private Transform _bg;
     [SerializeField] private CanvasGroup _loadingSim;
     [SerializeField] private AnimationCurve _loadingCurve;
 
+    [SerializeField] private TextMeshProUGUI _notifyTxt;
+
+    private static GameLog gameLog = new GameLog();
+    public static GameManager Instance; //Singleton pattern
+
     public bool IsPlaying { get; private set; }
+
+    private int chaserIndex;
 
     private void Awake()
     {
+        Instance = this;
+        inGameGroup.alpha = 0;
         inputManager.onPlayerJoined += input =>
         {
             var index = inputManager.playerCount - 1;
@@ -72,62 +89,125 @@ public class GameManager : MonoBehaviour
                 t += Time.deltaTime;
             }
 
-            currentCountdown = countDownTime;
+            yield return countDownToStartGame(countDownTime);
         }
     }
 
-    private void startGame()
+    private IEnumerator startGame()
     {
-        var chaserIndex = Random.Range(0, players.Length);
-
+        IsPlaying = true;
+        currentRoundTime = roundTime;
+        chaserIndex = Random.Range(0, players.Length);
         for (int i = 0; i < players.Length; i++)
         {
             players[i].SetChaser(i == chaserIndex);
 
+            //not unlock input if it is chaser
             if (i != chaserIndex) players[i].InputHandler.SetEnable(true);
-            else players[i].freeze = true;
         }
 
-        StartCoroutine(turnOnChaser());
+        var chaserBehaviour = players[chaserIndex];
+        //not nesscessary but set for log and old logic
+        chaserBehaviour.freeze = true;
 
-        IEnumerator turnOnChaser()
-        {
-            yield return new WaitForSeconds(5);
-            players[chaserIndex].InputHandler.SetEnable(true);
-            players[chaserIndex].freeze = false;
-        }
+        //wait to unlock chaser 
+        yield return new WaitForSeconds(freezeChaserTime);
+        players[chaserIndex].InputHandler.SetEnable(true);
+        players[chaserIndex].freeze = false;
     }
 
+    IEnumerator countDownToStartGame(float t)
+    {
+        inGameGroup.alpha = 1;
+        updateRoundInfo();
+        while (t >= 0)
+        {
+            t -= Time.deltaTime;
+            timerText.text = $"Game start in: {t.NiceFloat(1)}";
+            timerText.gameObject.SetActive(t > 0);
+            yield return null;
+        }
+        yield return startGame();
+    }
+
+    private bool isEndRound = false;
+    private void handleEndGame(bool chaserWin)
+    {
+        if (isEndRound) return;
+
+        currentRoundTime = 0; //break point value for not run in Update
+        isEndRound = true;
+
+        if (chaserWin)
+        {
+            if (chaserIndex == 0) gameLog.P1_Score++;
+            else gameLog.P2_Score++;
+        }
+        else
+        {
+            if (chaserIndex == 0) gameLog.P2_Score++;
+            else gameLog.P1_Score++;
+        }
+        gameLog.Round++;
+
+        //lock all input
+        foreach (var i in players)
+        {
+            i.InputHandler.SetEnable(false);
+        }
+
+        updateRoundInfo();
+
+        StartCoroutine(gameEndTransition(chaserWin));
+    }
+
+    void updateRoundInfo()
+    {
+        roundNumberTxt.text = $"Round: {gameLog.Round + 1}" ;
+        scroreBoardTxt.text = $"{gameLog.P1_Score}\t-\t{gameLog.P2_Score}";
+    }
+
+    public void NofifyChaserTouchRunner()
+    {
+        handleEndGame(true);   
+    }
+
+    IEnumerator gameEndTransition(bool chaserWin)
+    {
+        _notifyTxt.transform.parent.gameObject.SetActive(true);
+        _notifyTxt.text = chaserWin ? "Chaser win" : "Runner win";
+
+        float t = nextRoundTime;
+        while (t >= 0)
+        {
+            t -= Time.deltaTime;
+            timerText.text = $"New round start in: {t.NiceFloat(1)}";
+            timerText.gameObject.SetActive(t > 0);
+            yield return null;
+        }
+
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+    }
+
+    private float currentRoundTime;
     private void Update()
     {
-        if (currentCountdown >= 0)
+        if (currentRoundTime > 0)
         {
-            currentCountdown -= Time.deltaTime;
-            if (currentCountdown < 0)
+            currentRoundTime -= Time.deltaTime;
+            timerText.gameObject.SetActive(true);
+            timerText.text = $"Round end in: {currentRoundTime.NiceFloat(1)}";
+            if (currentRoundTime < 0)
             {
-                IsPlaying = true;
-                startGame();
+                handleEndGame(false);
             }
         }
-        timerText.gameObject.SetActive(currentCountdown >= 0);
-        timerText.text = currentCountdown.NiceFloat(1);
     }
 
-    //private void PlayerRandomizer()
-    //{
-    //    RandomPicker = Random.Range(0, 100);
-
-    //    if (RandomPicker < 50)
-    //    {
-    //        Player1.tag = "Runner";
-
-    //        Player2.tag = "Chaser";
-    //    }
-    //    else if (RandomPicker > 50)
-    //    {
-    //        Player1.tag = "Chaser";
-
-    //        Player2.tag = "Runner";
-    //    }
-    //}
+    private class GameLog
+    {
+        public int Round;
+        public int P1_Score;
+        public int P2_Score;
+    }
 }

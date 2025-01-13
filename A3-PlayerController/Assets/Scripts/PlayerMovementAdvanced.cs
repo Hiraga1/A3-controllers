@@ -51,7 +51,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
-    [SerializeField] private float rotationSpeed;
 
     public float speedIncreaseMultiplier;
     public float slopeIncreaseMultiplier;
@@ -60,13 +59,13 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     [Header("Jumping")]
     public float jumpForce;
+
     public float jumpCooldown;
     public float airMultiplier;
     private bool readyToJump;
     public bool canDoubleJump;
     private bool readyToLeap;
     public float leapCD;
-
 
     [Header("Crouching")]
     public float crouchSpeed;
@@ -159,6 +158,8 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
         input.SetupCinemachineCameraControl(freeLookCam);
         input.SetupCinemachineCameraControl(aimCamera);
+
+        Crosshair.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -211,7 +212,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
         if (rb.velocity.magnitude > desiredMoveSpeed)
         {
-
             //old is
             //rb.velocity = rb.velocity.normalized * desiredMoveSpeed;
             // old will prevent and change the current jump force which will lead to hard to jump while moving
@@ -337,8 +337,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
             state = MovementState.sliding;
         }
     }
-
-        
 
     private IEnumerator SmoothlyLerpMoveSpeed()
     {
@@ -527,12 +525,13 @@ public class PlayerMovementAdvanced : MonoBehaviour
             }
         }
     }
+
     private void OnCollisionEnter(Collision collision)
     {
         var player = collision.gameObject.GetComponent<PlayerMovementAdvanced>();
-        if (player!= null && player.IsChaser)
+        if (player != null && this.IsChaser)
         {
-           
+            GameManager.Instance.NofifyChaserTouchRunner();
         }
     }
 }
