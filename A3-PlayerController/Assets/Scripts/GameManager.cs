@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (currentCountdown > 0)
+        if (currentCountdown >= 0)
         {
             currentCountdown -= Time.deltaTime;
             if (currentCountdown < 0)
@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
                 startGame();
             }
         }
-        timerText.gameObject.SetActive(currentCountdown > 0);
+        timerText.gameObject.SetActive(currentCountdown >= 0);
         timerText.text = currentCountdown.NiceFloat(1);
     }
 

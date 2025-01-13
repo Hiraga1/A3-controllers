@@ -3075,6 +3075,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterPack (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4367816696192481655, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4947513568732521385, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: m_Layer
       value: 12
@@ -7133,7 +7137,7 @@ MonoBehaviour:
   - {fileID: 372688320}
   - {fileID: 1327733877}
   timerText: {fileID: 982054324}
-  countDownTime: 1
+  countDownTime: 2
   _bg: {fileID: 136257502}
   _loadingSim: {fileID: 1051467292}
   _loadingCurve:
@@ -9262,6 +9266,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2514805240764678320, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -52.664627
+      objectReference: {fileID: 0}
+    - target: {fileID: 2514805240764678320, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 97.56741
+      objectReference: {fileID: 0}
     - target: {fileID: 4367816696192481655, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: m_Name
       value: CharacterPack
