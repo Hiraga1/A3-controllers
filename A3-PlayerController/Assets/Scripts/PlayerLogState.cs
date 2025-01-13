@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-
+using UnityEngine.UI;
 public class PlayerLogState : MonoBehaviour
 {
     [SerializeField] private TMPro.TextMeshProUGUI velocityTxt;
-    [SerializeField] private TMPro.TextMeshProUGUI isSprintTxt;
+    [SerializeField] private TMPro.TextMeshProUGUI internalLogTxt;
     [SerializeField] private TMPro.TextMeshProUGUI isReadyTxt;
 
     private GameManager manager;
@@ -12,8 +12,13 @@ public class PlayerLogState : MonoBehaviour
     private void Awake()
     {
         velocityTxt.text = "";
-        isSprintTxt.text = "";
+        internalLogTxt.text = "";
         isReadyTxt.text = "";
+    }
+
+    public void SetActiveReadyState(bool value)
+    {
+        isReadyTxt.transform.parent.gameObject.SetActive(value);
     }
 
     public void Init(GameManager manager, PlayerMovementAdvanced player)
@@ -24,15 +29,19 @@ public class PlayerLogState : MonoBehaviour
 
     private void Update()
     {
-        if (manager != null && player != null)
+        if (manager != null)
         {
-            isReadyTxt.text = player.IsRegister ? "Ready" : "Not Ready";
-            isReadyTxt.transform.parent.gameObject.SetActive(!manager.IsPlaying);
-            if (manager.IsPlaying)
+            velocityTxt.transform.parent.gameObject.SetActive(manager.IsPlaying);
+            internalLogTxt.transform.parent.gameObject.SetActive(manager.IsPlaying);
+            if (player != null)
             {
-                var velocity = player.Velocity;
-                velocityTxt.text = $"{velocity.magnitude.NiceFloat(1)}-{velocity}";
-                isSprintTxt.text = $"state: {player.state}";
+                isReadyTxt.text = player.IsRegister ? "Ready" : "Press start to ready";
+                if (manager.IsPlaying)
+                {
+                    var velocity = player.Velocity;
+                    velocityTxt.text = $"{velocity.magnitude.NiceFloat(1)}-{velocity}";
+                    internalLogTxt.text = $"isChaser: {player.IsChaser} state: {player.state}";
+                }
             }
         }
     }

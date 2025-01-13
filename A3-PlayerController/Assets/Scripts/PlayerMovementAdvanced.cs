@@ -12,6 +12,9 @@ public class PlayerMovementAdvanced : MonoBehaviour
     private Rigidbody rb;
     public Vector3 Velocity => rb.velocity;
 
+    private Vector3 moveDirection;
+    public Vector3 MoveDirection => moveDirection;
+
     private bool isAiming;
 
     private bool isSprinting;
@@ -26,6 +29,8 @@ public class PlayerMovementAdvanced : MonoBehaviour
     // Cinemachine Virtual Camera (for aiming)
     [SerializeField]
     private CinemachineVirtualCamera aimCamera;
+
+    [SerializeField] private Transform cameraTransform;
 
     private CinemachineBasicMultiChannelPerlin channelPerlin;
 
@@ -46,7 +51,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
-    private float rotationSpeed;
+    [SerializeField] private float rotationSpeed;
 
     public float speedIncreaseMultiplier;
     public float slopeIncreaseMultiplier;
@@ -81,24 +86,31 @@ public class PlayerMovementAdvanced : MonoBehaviour
     private RaycastHit slopeHit;
     private bool exitingSlope;
 
+    [Header("Throw")]
+    [SerializeField] private GameObject throwingObj;
+
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private Vector3 forceThrow;
+    [SerializeField] private float throwCooldown;
+
     [Header("References")]
     public Climbing climbingScript;
 
-    public Throwing throwScript;
     public PlayerStatus status;
     public Transform orientation;
 
     [Header("Falling")]
     public float maxFallingThreshold = 15;
 
-    private float horizontalInput;
-    private float verticalInput;
-
     [Header("Animation")]
     private Animator characterAnimator;
 
-    
-    public bool isChaser;
+    public bool IsChaser { get; private set; }
+
+    public void SetChaser(bool value)
+    {
+        IsChaser = value;
+    }
 
     public MovementState state;
 
@@ -108,6 +120,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
         walking,
         sprinting,
         sliding,
+        aiming,
         air,
         climbing,
         freeze,
@@ -138,8 +151,8 @@ public class PlayerMovementAdvanced : MonoBehaviour
         input.RegisterOnCrouchPress(beginCrouch);
         input.RegisterOnCrouchCancel(cancelCrouch);
 
-        input.RegisterOnAimPress(() => isAiming = true);
-        input.RegisterOnAimCancel(() => isAiming = false);
+        input.RegisterOnAimPress(beginAim);
+        input.RegisterOnAimCancel(releaseAim);
 
         input.RegisterOnSprintPress(() => isSprinting = true);
         input.RegisterOnSpiritCancel(() => isSprinting = false);
@@ -184,6 +197,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
         if (isAiming)
         {
+            state = MovementState.aiming;
             desiredMoveSpeed = 2;
         }
 
@@ -196,14 +210,58 @@ public class PlayerMovementAdvanced : MonoBehaviour
         movePlayer();
 
         if (rb.velocity.magnitude > desiredMoveSpeed)
-            rb.velocity = rb.velocity.normalized * desiredMoveSpeed;
+        {
+
+            //old is
+            //rb.velocity = rb.velocity.normalized * desiredMoveSpeed;
+            // old will prevent and change the current jump force which will lead to hard to jump while moving
+
+            //fix
+            var limitSpeed = rb.velocity.normalized * desiredMoveSpeed;
+            rb.velocity = new Vector3(limitSpeed.x, rb.velocity.y, limitSpeed.z);
+        }
+
         rb.useGravity = !OnSlope();
     }
 
     private void movePlayer()
     {
-        // calculate movement direction
-        var moveDirection = orientation.forward * input.MovementInput.y + orientation.right * input.MovementInput.x;
+        if (!isAiming)
+        {
+            moveDirection = (freeLookCam.transform.forward * input.MovementInput.y + freeLookCam.transform.right * input.MovementInput.x);
+            var currentPos = transform.position;
+            var positionLookAt = currentPos + moveDirection;
+            //prevent rotate X
+            positionLookAt.y = transform.position.y;
+            //prevent lookup or down character will move vertical
+
+            orientation.LookAt(positionLookAt);
+        }
+        else
+        {
+            moveDirection = orientation.forward * input.MovementInput.y + orientation.right * input.MovementInput.x;
+
+            var euler = orientation.rotation.eulerAngles;
+            euler.x += input.LookInput.y * -1;
+
+            //range 320-360
+            if (euler.x > 180 && euler.x < 320)
+            {
+                euler.x = 320;
+            }
+            else if (euler.x < 180 && euler.x > 35) //0-35
+            {
+                euler.x = 35;
+            }
+
+            euler.y += input.LookInput.x;
+            orientation.rotation = Quaternion.Euler(euler);
+        }
+
+        moveDirection.y = 0;
+
+        //Debug.Log("Orientation Forward: " + orientation.forward);
+        //Debug.Log("Move Direction: " + moveDirection);
 
         // on slope
         if (OnSlope() && !exitingSlope)
@@ -220,7 +278,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
         // in air
         else if (!grounded)
-            rb.AddForce(moveDirection.normalized * desiredMoveSpeed * 10f * airMultiplier, ForceMode.Force);
+            rb.AddForce(Vector3.down * 10f * airMultiplier, ForceMode.Force);
 
         // turn gravity off while on slope
         rb.useGravity = !OnSlope();
@@ -330,7 +388,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
         void performJump()
         {
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
 
@@ -360,6 +418,53 @@ public class PlayerMovementAdvanced : MonoBehaviour
     }
 
     #endregion Crouch
+
+    #region Aim And Throw
+
+    private void beginAim()
+    {
+        if (!readytoThrow) return;
+        isAiming = true;
+    }
+
+    private void releaseAim()
+    {
+        performThrow();
+    }
+
+    private bool readytoThrow = true;
+
+    private void performThrow()
+    {
+        if (!readytoThrow || !isAiming) return;
+
+        readytoThrow = false;
+
+        StartCoroutine(throwProjectile());
+        IEnumerator throwProjectile()
+        {
+            GameObject projectile = Instantiate(throwingObj, Crosshair.transform.position, Quaternion.identity, attackPoint);
+            var localPos = projectile.transform.localPosition;
+            localPos.z = 0;
+            projectile.transform.localPosition = localPos;
+            projectile.transform.parent = null;
+
+            var rbProjectile = projectile.GetComponent<Rigidbody>();
+            rbProjectile.AddForce(Crosshair.transform.forward * forceThrow.z, ForceMode.Impulse);
+            rbProjectile.AddForce(Crosshair.transform.up * forceThrow.y, ForceMode.Impulse);
+
+            yield return new WaitForSeconds(throwCooldown);
+            readytoThrow = true;
+            isAiming = false;
+
+            //reset rotation vertical
+            var euler = orientation.localRotation.eulerAngles;
+            euler.x = 0;
+            orientation.localRotation = Quaternion.Euler(euler);
+        }
+    }
+
+    #endregion Aim And Throw
 
     public bool OnSlope()
     {
@@ -424,7 +529,8 @@ public class PlayerMovementAdvanced : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Runner")
+        var player = collision.gameObject.GetComponent<PlayerMovementAdvanced>();
+        if (player!= null && player.IsChaser)
         {
            
         }

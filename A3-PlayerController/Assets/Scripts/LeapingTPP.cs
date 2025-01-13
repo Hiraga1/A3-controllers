@@ -61,7 +61,7 @@ public class LeapingTPP : MonoBehaviour
     {
         rb.drag = 0;
         //Vector3 inputDirection = orientation.forward * verticalMovement + orientation.right * horizontalMovement;
-        Vector3 inputDirection = orientation.forward * input.MovementInput.y + orientation.right * input.MovementInput.x;
+        Vector3 inputDirection = pm.MoveDirection;
 
         rb.AddForce(inputDirection * leapForce, ForceMode.Impulse);
     }

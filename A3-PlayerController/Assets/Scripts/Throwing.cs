@@ -22,9 +22,9 @@ public class Throwing : MonoBehaviour
 
     private void Awake()
     {
-        input = GetComponent<InputHandler>();
-        input.RegisterOnAimPress(prepareThrow);
-        input.RegisterOnAimCancel(performThrow);
+        //input = GetComponent<InputHandler>();
+        //input.RegisterOnAimPress(prepareThrow);
+        //input.RegisterOnAimCancel(performThrow);
     }
 
     private void Start()

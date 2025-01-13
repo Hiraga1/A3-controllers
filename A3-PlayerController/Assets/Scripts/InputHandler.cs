@@ -8,11 +8,11 @@ public class InputHandler : MonoBehaviour
     private InputActionMap playerControls;
     public bool HasInputActionMap => playerControls != null;
 
-    private Vector2 movementInput;
-    public Vector2 MovementInput => movementInput;
+    private InputAction movementInput;
+    public Vector2 MovementInput => movementInput != null ? movementInput.ReadValue<Vector2>() : Vector2.zero;
 
-    private Vector2 lookInput;
-    public Vector2 LookInput => lookInput;
+    private InputAction lookInput;
+    public Vector2 LookInput => lookInput != null ? lookInput.ReadValue<Vector2>() : Vector2.zero;
 
     private event Action onJumpPressed;
 
@@ -50,8 +50,8 @@ public class InputHandler : MonoBehaviour
     {
         playerControls = input.actions.FindActionMap("Player");
 
-        playerControls.FindAction(ActionName.Move).performed += i => movementInput = i.ReadValue<Vector2>();
-        playerControls.FindAction(ActionName.Look).performed += i => lookInput = i.ReadValue<Vector2>();
+        movementInput = playerControls.FindAction(ActionName.Move);
+        lookInput = playerControls.FindAction(ActionName.Look);
 
         playerControls.FindAction(ActionName.Jump).performed += _ => invokeJumpPressed();
 

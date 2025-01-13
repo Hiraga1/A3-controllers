@@ -1,24 +1,29 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.InputSystem;
+using System.Collections;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private PlayerInputManager inputManager;
     [SerializeField] private PlayerMovementAdvanced[] players;
     [SerializeField] private PlayerLogState[] uiLogStates;
-    [SerializeField] private GameObject Player1;
-    [SerializeField] private GameObject Player2;
+
+    //[SerializeField] private GameObject Player1;
+    //[SerializeField] private GameObject Player2;
+
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private float countDownTime;
-    [SerializeField] private PlayerMovementAdvanced pm;
     private float currentCountdown;
 
-    private int RandomPicker;
-    public bool IsPlaying { get; private set; }
+    [Header("Trans")]
+    [SerializeField] private Transform _bg;
+    [SerializeField] private CanvasGroup _loadingSim;
+    [SerializeField] private AnimationCurve _loadingCurve;
 
-    private List<PlayerInput> storedInput = new List<PlayerInput>();
+    public bool IsPlaying { get; private set; }
 
     private void Awake()
     {
@@ -36,25 +41,63 @@ public class GameManager : MonoBehaviour
 
             if (inputManager.playerCount == players.Length)
             {
-                currentCountdown = countDownTime;
+                StartCoroutine(transition());
             }
-
         };
 
         for (int i = 0; i < players.Length; i++)
         {
             uiLogStates[i].Init(this, players[i]);
+            uiLogStates[i].SetActiveReadyState(true);
+        }
+
+        IEnumerator transition()
+        {
+            float t = 0;
+            var lastT = _loadingCurve.keys[_loadingCurve.keys.Length - 1].time;
+            //add some delay
+            yield return new WaitForSeconds(0.5f);
+            while (t < lastT)
+            {
+                _loadingSim.alpha = _loadingCurve.Evaluate(t);
+                if (_loadingSim.alpha >= 0.9f)
+                {
+                    _bg.gameObject.SetActive(false);
+                    for (int i = 0; i < players.Length; i++)
+                    {
+                        uiLogStates[i].SetActiveReadyState(false);
+                    }
+                }
+                yield return null;
+                t += Time.deltaTime;
+            }
+
+            currentCountdown = countDownTime;
         }
     }
 
     private void startGame()
     {
-        PlayerRandomizer();
+        var chaserIndex = Random.Range(0, players.Length);
+
         for (int i = 0; i < players.Length; i++)
         {
-            players[i].InputHandler.SetEnable(true);
+            players[i].SetChaser(i == chaserIndex);
+
+            if (i != chaserIndex) players[i].InputHandler.SetEnable(true);
+            else players[i].freeze = true;
+        }
+
+        StartCoroutine(turnOnChaser());
+
+        IEnumerator turnOnChaser()
+        {
+            yield return new WaitForSeconds(5);
+            players[chaserIndex].InputHandler.SetEnable(true);
+            players[chaserIndex].freeze = false;
         }
     }
+
     private void Update()
     {
         if (currentCountdown > 0)
@@ -68,30 +111,23 @@ public class GameManager : MonoBehaviour
         }
         timerText.gameObject.SetActive(currentCountdown > 0);
         timerText.text = currentCountdown.NiceFloat(1);
+    }
 
-    }
-    private void PlayerRandomizer()
-    {
-        RandomPicker = Random.Range(0, 100);
-        
-        if (RandomPicker < 50)
-        {
-            
-            Player1.tag = "Runner";
-            
-            Player2.tag = "Chaser";
-        }
-        else if (RandomPicker > 50)
-        {
-            Player1.tag = "Chaser";
-            
-            Player2.tag = "Runner";
-        }
-    }
-    
+    //private void PlayerRandomizer()
+    //{
+    //    RandomPicker = Random.Range(0, 100);
+
+    //    if (RandomPicker < 50)
+    //    {
+    //        Player1.tag = "Runner";
+
+    //        Player2.tag = "Chaser";
+    //    }
+    //    else if (RandomPicker > 50)
+    //    {
+    //        Player1.tag = "Chaser";
+
+    //        Player2.tag = "Runner";
+    //    }
+    //}
 }
-            
-
-            
-
-
