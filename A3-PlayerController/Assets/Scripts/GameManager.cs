@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
@@ -22,17 +21,20 @@ public class GameManager : MonoBehaviour
     [Space]
     [Header("Time Config")]
     [SerializeField] private float countDownTime = 2;
+
     [SerializeField] private float roundTime = 30;
     [SerializeField] private float freezeChaserTime = 5;
     [SerializeField] private float nextRoundTime = 5;
 
     [Header("Trans")]
     [SerializeField] private Transform _bg;
+
     [SerializeField] private CanvasGroup _loadingSim;
     [SerializeField] private AnimationCurve _loadingCurve;
 
     [SerializeField] private TextMeshProUGUI _notifyTxt;
 
+    private static GameObject storeInput;
     private static GameLog gameLog = new GameLog();
     public static GameManager Instance; //Singleton pattern
 
@@ -40,27 +42,60 @@ public class GameManager : MonoBehaviour
 
     private int chaserIndex;
 
+    private static List<PlayerInput> _storedPlayerInput = new List<PlayerInput>();
+
+    //private bool checkReadyPhase = false;
+
     private void Awake()
     {
         Instance = this;
         inGameGroup.alpha = 0;
+
+        if (_storedPlayerInput.Count == 0)
+        {
+            storeInput = new GameObject();
+            DontDestroyOnLoad(storeInput);
+        }
+
         inputManager.onPlayerJoined += input =>
         {
             var index = inputManager.playerCount - 1;
-            players[index].InputHandler.SetPlayerInput(input);
-            players[index].InputHandler.SetEnable(false);
+            setPlayerReady(players[index], input);
+
+            //var map = input.actions.FindActionMap("Player");
+            //map.FindAction("Join").performed += _ =>
+            //{
+            //    onPlyerPressJoin(index);
+            //};
 
             //manage gameobject spawned
-            input.gameObject.transform.parent = transform;
+            input.gameObject.transform.parent = storeInput.transform;
             input.name = $"player ({index + 1}) input";
 
-            //can make a countdown here if player full
+            _storedPlayerInput.Add(input);
 
             if (inputManager.playerCount == players.Length)
             {
-                StartCoroutine(transition());
+                StartCoroutine(openGameWhenFullPlayer());
             }
         };
+
+        //new roud, already have full players
+        if (_storedPlayerInput.Count > 0)
+        {
+            _bg.gameObject.SetActive(false);
+            _loadingSim.alpha = 1;
+
+            for (int i = 0; i < players.Length; i++)
+            {
+                var player = players[i];
+                var input = _storedPlayerInput[i];
+
+                setPlayerReady(player, input);
+            }
+            StartCoroutine(openGameWhenFullPlayer());
+            //checkReadyPhase = true;
+        }
 
         for (int i = 0; i < players.Length; i++)
         {
@@ -68,28 +103,54 @@ public class GameManager : MonoBehaviour
             uiLogStates[i].SetActiveReadyState(true);
         }
 
-        IEnumerator transition()
+        IEnumerator openGameWhenFullPlayer()
         {
-            float t = 0;
-            var lastT = _loadingCurve.keys[_loadingCurve.keys.Length - 1].time;
-            //add some delay
-            yield return new WaitForSeconds(0.5f);
-            while (t < lastT)
+            yield return transition();
+            for (int i = 0; i < players.Length; i++)
             {
-                _loadingSim.alpha = _loadingCurve.Evaluate(t);
-                if (_loadingSim.alpha >= 0.9f)
-                {
-                    _bg.gameObject.SetActive(false);
-                    for (int i = 0; i < players.Length; i++)
-                    {
-                        uiLogStates[i].SetActiveReadyState(false);
-                    }
-                }
-                yield return null;
-                t += Time.deltaTime;
+                uiLogStates[i].SetActiveReadyState(false);
             }
-
             yield return countDownToStartGame(countDownTime);
+        }
+    }
+
+    private void setPlayerReady(PlayerMovementAdvanced player, PlayerInput input)
+    {
+        player.InputHandler.SetPlayerInput(input);
+        player.InputHandler.SetEnable(false);
+    }
+
+    //private void onPlyerPressJoin(int index)
+    //{
+    //    if (checkReadyPhase && !IsPlaying)
+    //    {
+    //        setPlayerReady(players[index], _storedPlayerInput[index]);
+    //    }
+
+    //    foreach (var i in players)
+    //    {
+    //        if (!i.IsRegister)
+    //        {
+    //            return;
+    //        }
+    //    }
+
+    //    StartCoroutine(countDownToStartGame(countDownTime));
+    //}
+
+    private IEnumerator transition()
+    {
+        float t = 0;
+        var lastT = _loadingCurve.keys[_loadingCurve.keys.Length - 1].time;
+        //add some delay
+        yield return new WaitForSeconds(0.5f);
+        while (t < lastT)
+        {
+            _loadingSim.alpha = _loadingCurve.Evaluate(t);
+            if (_loadingSim.alpha > 0.8f)
+                _bg.gameObject.SetActive(false);
+            yield return null;
+            t += Time.deltaTime;
         }
     }
 
@@ -110,13 +171,13 @@ public class GameManager : MonoBehaviour
         //not nesscessary but set for log and old logic
         chaserBehaviour.freeze = true;
 
-        //wait to unlock chaser 
+        //wait to unlock chaser
         yield return new WaitForSeconds(freezeChaserTime);
         players[chaserIndex].InputHandler.SetEnable(true);
         players[chaserIndex].freeze = false;
     }
 
-    IEnumerator countDownToStartGame(float t)
+    private IEnumerator countDownToStartGame(float t)
     {
         inGameGroup.alpha = 1;
         updateRoundInfo();
@@ -131,6 +192,7 @@ public class GameManager : MonoBehaviour
     }
 
     private bool isEndRound = false;
+
     private void handleEndGame(bool chaserWin)
     {
         if (isEndRound) return;
@@ -154,6 +216,7 @@ public class GameManager : MonoBehaviour
         foreach (var i in players)
         {
             i.InputHandler.SetEnable(false);
+            i.InputHandler.ClearCallbackInput();
         }
 
         updateRoundInfo();
@@ -161,18 +224,18 @@ public class GameManager : MonoBehaviour
         StartCoroutine(gameEndTransition(chaserWin));
     }
 
-    void updateRoundInfo()
+    private void updateRoundInfo()
     {
-        roundNumberTxt.text = $"Round: {gameLog.Round + 1}" ;
+        roundNumberTxt.text = $"Round: {gameLog.Round + 1}";
         scroreBoardTxt.text = $"{gameLog.P1_Score}\t-\t{gameLog.P2_Score}";
     }
 
     public void NofifyChaserTouchRunner()
     {
-        handleEndGame(true);   
+        handleEndGame(true);
     }
 
-    IEnumerator gameEndTransition(bool chaserWin)
+    private IEnumerator gameEndTransition(bool chaserWin)
     {
         _notifyTxt.transform.parent.gameObject.SetActive(true);
         _notifyTxt.text = chaserWin ? "Chaser win" : "Runner win";
@@ -190,6 +253,7 @@ public class GameManager : MonoBehaviour
     }
 
     private float currentRoundTime;
+
     private void Update()
     {
         if (currentRoundTime > 0)

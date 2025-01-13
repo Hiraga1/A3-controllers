@@ -46,34 +46,57 @@ public class InputHandler : MonoBehaviour
         public const string Dash = "Dash";
     }
 
+    private PlayerInput currentInput;
+
     public void SetPlayerInput(PlayerInput input)
     {
+        if (currentInput == input) return;
+        currentInput = input;
         playerControls = input.actions.FindActionMap("Player");
 
         movementInput = playerControls.FindAction(ActionName.Move);
         lookInput = playerControls.FindAction(ActionName.Look);
 
-        playerControls.FindAction(ActionName.Jump).performed += _ => invokeJumpPressed();
+        playerControls.FindAction(ActionName.Jump).performed += invokeJumpPressed;
 
-        playerControls.FindAction(ActionName.Sprint).started += _ => handleSprintInput(InputActionPhase.Started);
-        playerControls.FindAction(ActionName.Sprint).canceled += _ => handleSprintInput(InputActionPhase.Canceled);
+        playerControls.FindAction(ActionName.Sprint).started += handleSprintInput;
+        playerControls.FindAction(ActionName.Sprint).canceled += handleSprintInput;
 
-        playerControls.FindAction(ActionName.Aim).started += _ => handleAimInput(InputActionPhase.Started);
-        playerControls.FindAction(ActionName.Aim).canceled += _ => handleAimInput(InputActionPhase.Canceled);
+        playerControls.FindAction(ActionName.Aim).started += handleAimInput;
+        playerControls.FindAction(ActionName.Aim).canceled += handleAimInput;
 
-        playerControls.FindAction(ActionName.Crouch).started += _ => handleCrouchInput(InputActionPhase.Started);
-        playerControls.FindAction(ActionName.Crouch).canceled += _ => handleCrouchInput(InputActionPhase.Canceled);
+        playerControls.FindAction(ActionName.Crouch).started += handleCrouchInput;
+        playerControls.FindAction(ActionName.Crouch).canceled += handleCrouchInput;
 
-        playerControls.FindAction(ActionName.Slide).started += _ => handleSlideInput(InputActionPhase.Started);
-        playerControls.FindAction(ActionName.Slide).canceled += _ => handleSlideInput(InputActionPhase.Canceled);
+        playerControls.FindAction(ActionName.Slide).started += handleSlideInput;
+        playerControls.FindAction(ActionName.Slide).canceled += handleSlideInput;
 
-        playerControls.FindAction(ActionName.Dash).performed += _ => handleDashInput();
+        playerControls.FindAction(ActionName.Dash).performed += handleDashInput;
 
         foreach (var cam in _storedCams)
         {
             setupCinemachineControl(cam);
         }
         _storedCams.Clear();
+    }
+
+    public void ClearCallbackInput()
+    {
+        playerControls.FindAction(ActionName.Jump).performed -= invokeJumpPressed;
+
+        playerControls.FindAction(ActionName.Sprint).started -= handleSprintInput;
+        playerControls.FindAction(ActionName.Sprint).canceled -= handleSprintInput;
+
+        playerControls.FindAction(ActionName.Aim).started -= handleAimInput;
+        playerControls.FindAction(ActionName.Aim).canceled -= handleAimInput;
+
+        playerControls.FindAction(ActionName.Crouch).started -= handleCrouchInput;
+        playerControls.FindAction(ActionName.Crouch).canceled -= handleCrouchInput;
+
+        playerControls.FindAction(ActionName.Slide).started -= handleSlideInput;
+        playerControls.FindAction(ActionName.Slide).canceled -= handleSlideInput;
+
+        playerControls.FindAction(ActionName.Dash).performed -= handleDashInput;
     }
 
     public void SetEnable(bool value)
@@ -109,7 +132,7 @@ public class InputHandler : MonoBehaviour
         onJumpPressed += action;
     }
 
-    private void invokeJumpPressed()
+    private void invokeJumpPressed(InputAction.CallbackContext context)
     {
         //log("jump press");
         onJumpPressed?.Invoke();
@@ -129,14 +152,14 @@ public class InputHandler : MonoBehaviour
         onCrouchCancel += action;
     }
 
-    private void handleCrouchInput(InputActionPhase phase)
+    private void handleCrouchInput(InputAction.CallbackContext context)
     {
-        if (phase == InputActionPhase.Started)
+        if (context.phase == InputActionPhase.Started)
         {
             //log("Crouch press");
             onCrouchPress?.Invoke();
         }
-        if (phase == InputActionPhase.Canceled)
+        if (context.phase == InputActionPhase.Canceled)
         {
             //log("Crouch cancel");
             onCrouchCancel?.Invoke();
@@ -157,13 +180,13 @@ public class InputHandler : MonoBehaviour
         onSprintCancel += action;
     }
 
-    private void handleSprintInput(InputActionPhase phase)
+    private void handleSprintInput(InputAction.CallbackContext context)
     {
-        if (phase == InputActionPhase.Started)
+        if (context.phase == InputActionPhase.Started)
         {
             onSprintPress?.Invoke();
         }
-        if (phase == InputActionPhase.Canceled)
+        if (context.phase == InputActionPhase.Canceled)
         {
             onSprintCancel?.Invoke();
         }
@@ -183,13 +206,13 @@ public class InputHandler : MonoBehaviour
         onAimCancel += action;
     }
 
-    private void handleAimInput(InputActionPhase phase)
+    private void handleAimInput(InputAction.CallbackContext context)
     {
-        if (phase == InputActionPhase.Started)
+        if (context.phase == InputActionPhase.Started)
         {
             onAimPress?.Invoke();
         }
-        if (phase == InputActionPhase.Canceled)
+        if (context.phase == InputActionPhase.Canceled)
         {
             onAimCancel?.Invoke();
         }
@@ -209,14 +232,14 @@ public class InputHandler : MonoBehaviour
         onSlideCancel += action;
     }
 
-    private void handleSlideInput(InputActionPhase phase)
+    private void handleSlideInput(InputAction.CallbackContext context)
     {
-        if (phase == InputActionPhase.Started)
+        if (context.phase == InputActionPhase.Started)
         {
             log("Slide press");
             onSlidePress?.Invoke();
         }
-        if (phase == InputActionPhase.Canceled)
+        if (context.phase == InputActionPhase.Canceled)
         {
             log("Slide press");
             onSlideCancel?.Invoke();
@@ -233,7 +256,7 @@ public class InputHandler : MonoBehaviour
         onDashPressed += action;
     }
 
-    private void handleDashInput()
+    private void handleDashInput(InputAction.CallbackContext context)
     {
         log("Dash press");
         onDashPressed?.Invoke();
