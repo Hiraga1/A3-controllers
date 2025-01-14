@@ -7282,7 +7282,6 @@ MonoBehaviour:
   inputManager: {fileID: 1212487602}
   players:
   - {fileID: 897532283}
-  - {fileID: 1279687775}
   uiLogStates:
   - {fileID: 372688320}
   - {fileID: 1327733877}
@@ -7291,7 +7290,7 @@ MonoBehaviour:
   scroreBoardTxt: {fileID: 1226849898}
   inGameGroup: {fileID: 1942337274}
   countDownTime: 1
-  roundTime: 300
+  roundTime: 5
   freezeChaserTime: 3
   nextRoundTime: 5
   _bg: {fileID: 136257502}
@@ -7680,17 +7679,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4066826116087753433, guid: 1b1d70ffdb7529e4696d1806a1b992ec, type: 3}
---- !u!114 &1279687775 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5546267902168818497, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
-  m_PrefabInstance: {fileID: 388193945}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b28935384c53c241a60e6bd1126ce83, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1279687777 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3400059032641713026, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}

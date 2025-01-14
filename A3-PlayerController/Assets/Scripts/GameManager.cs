@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -228,6 +229,7 @@ public class GameManager : MonoBehaviour
     {
         roundNumberTxt.text = $"Round: {gameLog.Round + 1}";
         scroreBoardTxt.text = $"{gameLog.P1_Score}\t-\t{gameLog.P2_Score}";
+        
     }
 
     public void NofifyChaserTouchRunner()
@@ -249,7 +251,8 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        //UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        SceneManager.LoadScene(0);
     }
 
     private float currentRoundTime;
@@ -266,6 +269,10 @@ public class GameManager : MonoBehaviour
                 handleEndGame(false);
             }
         }
+        if (gameLog.Round > 2)
+        {
+            DeclareWinner();
+        }
     }
 
     private class GameLog
@@ -273,5 +280,18 @@ public class GameManager : MonoBehaviour
         public int Round;
         public int P1_Score;
         public int P2_Score;
+    }
+
+    private void DeclareWinner()
+    {
+        if(gameLog.P1_Score > gameLog.P2_Score)
+        {
+            Debug.Log("P1 Wins");
+        }
+        else
+        {
+            SceneManager.LoadScene("P2 Wins");
+        }
+        gameLog.Round = 0;
     }
 }
