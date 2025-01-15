@@ -52,25 +52,25 @@ public class Sliding : MonoBehaviour
 
     private void SlidingMovement()
     {
-        //Vector3 inputDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
-        //Vector3 inputDirection = orientation.forward * input.MovementInput.y + orientation.right * input.MovementInput.x;
 
-        // sliding normal
-        if (!pm.OnSlope() || rb.velocity.y > -0.1f)
-        {
-            rb.AddForce(pm.MoveDirection.normalized * slideForce, ForceMode.Force);
+        if (pm.sliding)
+        {// sliding normal
+            if (!pm.OnSlope() || rb.velocity.y > -0.1f)
+            {
+                rb.AddForce(pm.MoveDirection.normalized * slideForce, ForceMode.Force);
 
-            slideTimer -= Time.deltaTime;
+                slideTimer -= Time.deltaTime;
+            }
+
+            // sliding down a slope
+            else
+            {
+                rb.AddForce(pm.GetSlopeMoveDirection(pm.MoveDirection) * slideForce, ForceMode.Force);
+            }
+
+            if (slideTimer <= 0)
+                StopSlide();
         }
-
-        // sliding down a slope
-        else
-        {
-            rb.AddForce(pm.GetSlopeMoveDirection(pm.MoveDirection) * slideForce, ForceMode.Force);
-        }
-
-        if (slideTimer <= 0)
-            StopSlide();
     }
 
     private void StopSlide()
