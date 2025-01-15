@@ -3538,6 +3538,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 12
       objectReference: {fileID: 0}
+    - target: {fileID: 783936684641073641, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.923
+      objectReference: {fileID: 0}
     - target: {fileID: 897531686372604072, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: m_Layer
       value: 12
@@ -3606,6 +3610,10 @@ PrefabInstance:
       propertyPath: m_NormalizedViewPortRect.x
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 6172374770319923973, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 7682338098397548711, guid: de94de731fa0a144e9122fee7554bc61, type: 3}
     - target: {fileID: 6758492101735234875, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: m_Layer
       value: 12
@@ -3649,6 +3657,14 @@ PrefabInstance:
     - target: {fileID: 7531278319449673453, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7676575584838630498, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 7682338098397548711, guid: de94de731fa0a144e9122fee7554bc61, type: 3}
+    - target: {fileID: 7832274902949681326, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4.7017317
       objectReference: {fileID: 0}
     - target: {fileID: 7915316520957143420, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: m_Layer
