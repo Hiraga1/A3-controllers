@@ -11,24 +11,22 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PlayerMovementAdvanced[] players;
     [SerializeField] private PlayerLogState[] uiLogStates;
 
-    //[SerializeField] private GameObject Player1;
-    //[SerializeField] private GameObject Player2;
-
-    [SerializeField] private TextMeshProUGUI timerText;
-    [SerializeField] private TextMeshProUGUI roundNumberTxt;
-    [SerializeField] private TextMeshProUGUI scroreBoardTxt;
-    [SerializeField] private CanvasGroup inGameGroup;
-
     [Space]
     [Header("Time Config")]
-    [SerializeField] private float countDownTime = 2;
+    [SerializeField] private float countDownTime = 5;
 
     [SerializeField] private float roundTime = 30;
     [SerializeField] private float freezeChaserTime = 5;
     [SerializeField] private float nextRoundTime = 5;
 
+    [SerializeField] private int maxRound = 3;
+
     [Header("Trans")]
-    [SerializeField] private Transform _bg;
+    [SerializeField] private ScenesCanvas.IntroScene _introScene;
+
+    [SerializeField] private ScenesCanvas.ReadyScene _readyScene;
+    [SerializeField] private ScenesCanvas.InGameScene _ingameScene;
+    [SerializeField] private ScenesCanvas.EndGameScene _endGameScene;
 
     [SerializeField] private CanvasGroup _loadingSim;
     [SerializeField] private AnimationCurve _loadingCurve;
@@ -38,6 +36,7 @@ public class GameManager : MonoBehaviour
     private static GameObject storeInput;
     private static GameLog gameLog = new GameLog();
     public static GameManager Instance; //Singleton pattern
+    private static bool needIntro = true;
 
     public bool IsPlaying { get; private set; }
 
@@ -50,7 +49,26 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        inGameGroup.alpha = 0;
+
+        //hide all scene
+        _introScene.gameObject.SetActive(false);
+        _readyScene.gameObject.SetActive(false);
+        _ingameScene.gameObject.SetActive(false);
+        _endGameScene.gameObject.SetActive(false);
+
+        if (needIntro)
+        {
+            needIntro = false;
+            _introScene.Init(inputManager);
+
+            StartCoroutine(_introScene.Transition(
+                onBeginFade: () =>
+                {
+                    _readyScene.Init(players);
+                    _readyScene.gameObject.SetActive(true);
+                },
+                onDone: null));
+        }
 
         if (_storedPlayerInput.Count == 0)
         {
@@ -84,7 +102,6 @@ public class GameManager : MonoBehaviour
         //new roud, already have full players
         if (_storedPlayerInput.Count > 0)
         {
-            _bg.gameObject.SetActive(false);
             _loadingSim.alpha = 1;
 
             for (int i = 0; i < players.Length; i++)
@@ -106,11 +123,24 @@ public class GameManager : MonoBehaviour
 
         IEnumerator openGameWhenFullPlayer()
         {
-            yield return transition();
+            if (_readyScene.gameObject.activeSelf)
+            {
+                yield return new WaitForSeconds(0.5f); //wait a little bit for better smooth transition
+                _readyScene.LockUpdate();
+            }
+
+            yield return transition(onFullBlack: () =>
+            {
+                _readyScene.gameObject.SetActive(false);
+                _ingameScene.gameObject.SetActive(true);
+            });
+            //just for log
             for (int i = 0; i < players.Length; i++)
             {
                 uiLogStates[i].SetActiveReadyState(false);
             }
+            //end for log
+
             yield return countDownToStartGame(countDownTime);
         }
     }
@@ -139,7 +169,7 @@ public class GameManager : MonoBehaviour
     //    StartCoroutine(countDownToStartGame(countDownTime));
     //}
 
-    private IEnumerator transition()
+    private IEnumerator transition(System.Action onFullBlack)
     {
         float t = 0;
         var lastT = _loadingCurve.keys[_loadingCurve.keys.Length - 1].time;
@@ -148,8 +178,8 @@ public class GameManager : MonoBehaviour
         while (t < lastT)
         {
             _loadingSim.alpha = _loadingCurve.Evaluate(t);
-            if (_loadingSim.alpha > 0.8f)
-                _bg.gameObject.SetActive(false);
+            if (_loadingSim.alpha > 0.9f)
+                onFullBlack?.Invoke();
             yield return null;
             t += Time.deltaTime;
         }
@@ -168,6 +198,8 @@ public class GameManager : MonoBehaviour
             if (i != chaserIndex) players[i].InputHandler.SetEnable(true);
         }
 
+        _ingameScene.ShowWhoIsChaser(players);
+
         var chaserBehaviour = players[chaserIndex];
         //not nesscessary but set for log and old logic
         chaserBehaviour.freeze = true;
@@ -178,17 +210,24 @@ public class GameManager : MonoBehaviour
         players[chaserIndex].freeze = false;
     }
 
-    private IEnumerator countDownToStartGame(float t)
+    private IEnumerator countDownToStartGame(float duration)
     {
-        inGameGroup.alpha = 1;
-        updateRoundInfo();
+        _ingameScene.ShowRoundInfo(gameLog, maxRound);
+        //check if need show controller layout
+        if (gameLog.NewGameC == 0 && gameLog.Round == 0)
+        {
+            _ingameScene.ControllerLayout.gameObject.SetActive(true);
+        }
+        float t = duration;
         while (t >= 0)
         {
             t -= Time.deltaTime;
-            timerText.text = $"Game start in: {t.NiceFloat(1)}";
-            timerText.gameObject.SetActive(t > 0);
+            _ingameScene.ShowTimer($"Game start in: {t.NiceFloat(1)}");
+            //20% of time
+            if (t / duration < 0.2f) _ingameScene.ControllerLayout.gameObject.SetActive(false);
             yield return null;
         }
+
         yield return startGame();
     }
 
@@ -211,6 +250,9 @@ public class GameManager : MonoBehaviour
             if (chaserIndex == 0) gameLog.P2_Score++;
             else gameLog.P1_Score++;
         }
+
+        _ingameScene.ShowRoundInfo(gameLog, maxRound);
+
         gameLog.Round++;
 
         //lock all input
@@ -220,17 +262,17 @@ public class GameManager : MonoBehaviour
             i.InputHandler.ClearCallbackInput();
         }
 
-        updateRoundInfo();
+        _ingameScene.ShowNotify(chaserWin ? "Chaser win" : "Runner win");
+        //can call declere winner here but i will call in gameEndtransition for some animation
 
         StartCoroutine(gameEndTransition(chaserWin));
     }
 
-    private void updateRoundInfo()
-    {
-        roundNumberTxt.text = $"Round: {gameLog.Round + 1}";
-        scroreBoardTxt.text = $"{gameLog.P1_Score}\t-\t{gameLog.P2_Score}";
-        
-    }
+    //private void updateRoundInfo()
+    //{
+    //    roundNumberTxt.text = $"Round: {gameLog.Round + 1}";
+    //    scroreBoardTxt.text = $"{gameLog.P1_Score}\t-\t{gameLog.P2_Score}";
+    //}
 
     public void NofifyChaserTouchRunner()
     {
@@ -242,17 +284,43 @@ public class GameManager : MonoBehaviour
         _notifyTxt.transform.parent.gameObject.SetActive(true);
         _notifyTxt.text = chaserWin ? "Chaser win" : "Runner win";
 
-        float t = nextRoundTime;
-        while (t >= 0)
+        if (gameLog.Round == maxRound)
         {
-            t -= Time.deltaTime;
-            timerText.text = $"New round start in: {t.NiceFloat(1)}";
-            timerText.gameObject.SetActive(t > 0);
-            yield return null;
-        }
+            bool isPlayer1Win;
+            declareWinner(out isPlayer1Win);
+            //trasition to result scene
+            float t = 2;
+            while (t >= 0)
+            {
+                t -= Time.deltaTime;
+                _ingameScene.ShowTimer($"Game end in: {t.NiceFloat(1)}");
+                
+                yield return null;
+            }
 
-        //UnityEngine.SceneManagement.SceneManager.LoadScene(0);
-        SceneManager.LoadScene(0);
+            _endGameScene.gameObject.SetActive(true);
+            _endGameScene.ShowResult(isPlayer1Win, openNewGame);
+
+            void openNewGame()
+            {
+                gameLog.NewGame();
+                SceneManager.LoadScene(0);
+            }
+        }
+        else //transition to loop game logic
+        {
+            float t = nextRoundTime;
+            while (t >= 0)
+            {
+                t -= Time.deltaTime;
+                _ingameScene.ShowTimer($"New round start in: {t.NiceFloat(1)}");
+                //timerText.gameObject.SetActive(t > 0);
+                yield return null;
+            }
+
+            //UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+            SceneManager.LoadScene(0);
+        }
     }
 
     private float currentRoundTime;
@@ -262,36 +330,37 @@ public class GameManager : MonoBehaviour
         if (currentRoundTime > 0)
         {
             currentRoundTime -= Time.deltaTime;
-            timerText.gameObject.SetActive(true);
-            timerText.text = $"Round end in: {currentRoundTime.NiceFloat(1)}";
+            _ingameScene.ShowTimer($"Round end in: {currentRoundTime.NiceFloat(1)}");
             if (currentRoundTime < 0)
             {
                 handleEndGame(false);
             }
         }
-        if (gameLog.Round > 2)
-        {
-            DeclareWinner();
-        }
     }
 
-    private class GameLog
+    public class GameLog
     {
+        public int NewGameC;
         public int Round;
         public int P1_Score;
         public int P2_Score;
+
+        public void NewGame()
+        {
+            NewGameC++;
+            Round = P1_Score = P2_Score = 0;
+        }
     }
 
-    private void DeclareWinner()
+    private void declareWinner(out bool isPlayer1Win)
     {
-        if(gameLog.P1_Score > gameLog.P2_Score)
+        if (gameLog.P1_Score > gameLog.P2_Score)
         {
-            Debug.Log("P1 Wins");
+            isPlayer1Win = true;
         }
         else
         {
-            SceneManager.LoadScene("P2 Wins");
+            isPlayer1Win = false;
         }
-        gameLog.Round = 0;
     }
 }
