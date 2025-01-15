@@ -20,6 +20,7 @@ namespace ScenesCanvas
             notifyTxt.transform.parent.gameObject.SetActive(false);
             HideWhoIsChaser();
             ControllerLayout.gameObject.SetActive(false);
+            _unlockChaserInSecondTxt.text = "";
         }
 
         public void ShowRoundInfo(GameManager.GameLog gameLog, int maxRound)
@@ -28,8 +29,9 @@ namespace ScenesCanvas
             scroreBoardTxt.text = $"{gameLog.P1_Score}\t-\t{gameLog.P2_Score}";
         }
 
-        public void ShowControlInput(float time)
+        public void ShowTimeUnlockChaser(float time)
         {
+            _unlockChaserInSecondTxt.text = time <= 0 ? "" : $"Chaser can move in:\t{time.NiceFloat(1)}";
         }
 
         public void ShowTimer(string s)
