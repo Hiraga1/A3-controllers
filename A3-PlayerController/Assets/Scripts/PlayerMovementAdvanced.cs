@@ -101,13 +101,10 @@ public class PlayerMovementAdvanced : MonoBehaviour
     public Transform playerObj;
     public PlayerStatus status;
     public Transform orientation;
-    Animator anim;
+    [SerializeField] Animator anim;
 
     [Header("Falling")]
     public float maxFallingThreshold = 15;
-
-    [Header("Animation")]
-    private Animator characterAnimator;
 
     public bool IsChaser { get; private set; }
 
@@ -166,7 +163,6 @@ public class PlayerMovementAdvanced : MonoBehaviour
         input.SetupCinemachineCameraControl(aimCamera);
 
         Crosshair.gameObject.SetActive(false);
-        anim = GetComponent<Animator>();
     }
 
     private void Update()
