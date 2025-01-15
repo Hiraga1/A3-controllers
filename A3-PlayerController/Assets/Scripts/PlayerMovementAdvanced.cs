@@ -291,6 +291,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
         switch (state)
         {
             case MovementState.walking:
+            case MovementState.idle:
                 desiredMoveSpeed = walkSpeed;
                 break;
 
@@ -339,30 +340,30 @@ public class PlayerMovementAdvanced : MonoBehaviour
         }
     }
 
-    private IEnumerator SmoothlyLerpMoveSpeed()
-    {
-        // smoothly lerp movementSpeed to desired value
-        float time = 0;
-        float difference = Mathf.Abs(desiredMoveSpeed - desiredMoveSpeed);
-        float startValue = desiredMoveSpeed;
+    //private IEnumerator SmoothlyLerpMoveSpeed()
+    //{
+    //    // smoothly lerp movementSpeed to desired value
+    //    float time = 0;
+    //    float difference = Mathf.Abs(desiredMoveSpeed - desiredMoveSpeed);
+    //    float startValue = desiredMoveSpeed;
 
-        while (time < difference)
-        {
-            desiredMoveSpeed = Mathf.Lerp(startValue, desiredMoveSpeed, time / difference);
+    //    while (time < difference)
+    //    {
+    //        desiredMoveSpeed = Mathf.Lerp(startValue, desiredMoveSpeed, time / difference);
 
-            if (OnSlope())
-            {
-                float slopeAngle = Vector3.Angle(Vector3.up, slopeHit.normal);
-                float slopeAngleIncrease = 1 + (slopeAngle / 90f);
+    //        if (OnSlope())
+    //        {
+    //            float slopeAngle = Vector3.Angle(Vector3.up, slopeHit.normal);
+    //            float slopeAngleIncrease = 1 + (slopeAngle / 90f);
 
-                time += Time.deltaTime * speedIncreaseMultiplier * slopeIncreaseMultiplier * slopeAngleIncrease;
-            }
-            else
-                time += Time.deltaTime * speedIncreaseMultiplier;
+    //            time += Time.deltaTime * speedIncreaseMultiplier * slopeIncreaseMultiplier * slopeAngleIncrease;
+    //        }
+    //        else
+    //            time += Time.deltaTime * speedIncreaseMultiplier;
 
-            yield return null;
-        }
-    }
+    //        yield return null;
+    //    }
+    //}
 
     #region Jump
 

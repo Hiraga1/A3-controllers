@@ -214,8 +214,8 @@ public class GameManager : MonoBehaviour
             _ingameScene.ShowTimeUnlockChaser(t);
             yield return null;
         }
-        players[chaserIndex].InputHandler.SetEnable(true);
-        players[chaserIndex].freeze = false;
+        chaserBehaviour.InputHandler.SetEnable(true);
+        chaserBehaviour.freeze = false;
     }
 
     private IEnumerator countDownToStartGame(float duration)
