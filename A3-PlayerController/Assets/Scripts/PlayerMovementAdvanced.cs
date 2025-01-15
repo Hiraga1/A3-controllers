@@ -101,6 +101,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
     public Transform playerObj;
     public PlayerStatus status;
     public Transform orientation;
+    Animator anim;
 
     [Header("Falling")]
     public float maxFallingThreshold = 15;
@@ -165,6 +166,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
         input.SetupCinemachineCameraControl(aimCamera);
 
         Crosshair.gameObject.SetActive(false);
+        anim = GetComponent<Animator>();
     }
 
     private void Update()
@@ -208,6 +210,10 @@ public class PlayerMovementAdvanced : MonoBehaviour
         }
 
         SwitchCamera();
+        if (state == MovementState.walking) 
+        {
+            anim.SetBool("IsWalking", true);
+        }
     }
 
     private void FixedUpdate()
