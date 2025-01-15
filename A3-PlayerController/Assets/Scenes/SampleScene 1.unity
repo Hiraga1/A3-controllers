@@ -392,6 +392,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4604029774405532985, guid: 1b1d70ffdb7529e4696d1806a1b992ec, type: 3}
+--- !u!4 &47208772 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3995134456768778064, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+  m_PrefabInstance: {fileID: 1688711304}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &51040720 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5550019086064345574, guid: 1b1d70ffdb7529e4696d1806a1b992ec, type: 3}
@@ -3490,9 +3495,17 @@ PrefabInstance:
       value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 5546267902168818497, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: playerObj
+      value: 
+      objectReference: {fileID: 675830749}
+    - target: {fileID: 5546267902168818497, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: forceThrow.z
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 5546267902168818497, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: playerObject
+      value: 
+      objectReference: {fileID: 675830749}
     - target: {fileID: 6052732531612608150, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: m_CullingMask.m_Bits
       value: 5175
@@ -5188,6 +5201,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 664567575}
   m_CullTransparentMesh: 1
+--- !u!4 &675830749 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3995134456768778064, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+  m_PrefabInstance: {fileID: 388193945}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &692317772 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -7526451747461157684, guid: 1b1d70ffdb7529e4696d1806a1b992ec, type: 3}
@@ -8522,10 +8540,10 @@ MonoBehaviour:
   - {fileID: 372688320}
   - {fileID: 1327733877}
   countDownTime: 5
-  roundTime: 5
+  roundTime: 300
   freezeChaserTime: 3
   nextRoundTime: 5
-  maxRound: 2
+  maxRound: 5
   _introScene: {fileID: 533590113}
   _readyScene: {fileID: 1312218086}
   _ingameScene: {fileID: 1942337275}
@@ -11532,9 +11550,17 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5546267902168818497, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: playerObj
+      value: 
+      objectReference: {fileID: 47208772}
+    - target: {fileID: 5546267902168818497, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: forceThrow.z
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 5546267902168818497, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
+      propertyPath: playerObject
+      value: 
+      objectReference: {fileID: 47208772}
     - target: {fileID: 6285147618358497021, guid: 01eca92cb9e4a42458756ae9e7c51a02, type: 3}
       propertyPath: m_Enabled
       value: 1

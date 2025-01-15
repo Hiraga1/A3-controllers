@@ -69,7 +69,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     [Header("Crouching")]
     public float crouchSpeed;
-
+    
     public float crouchYScale;
     private float startYScale;
 
@@ -94,7 +94,7 @@ public class PlayerMovementAdvanced : MonoBehaviour
 
     [Header("References")]
     public Climbing climbingScript;
-
+    public Transform playerObj;
     public PlayerStatus status;
     public Transform orientation;
 
@@ -143,12 +143,13 @@ public class PlayerMovementAdvanced : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         readyToJump = true;
-        startYScale = transform.localScale.y;
+        
 
         input.RegisterOnJumpInput(jump);
 
         input.RegisterOnCrouchPress(beginCrouch);
         input.RegisterOnCrouchCancel(cancelCrouch);
+        startYScale = playerObj.localScale.y;
 
         input.RegisterOnAimPress(beginAim);
         input.RegisterOnAimCancel(releaseAim);
@@ -404,14 +405,14 @@ public class PlayerMovementAdvanced : MonoBehaviour
     private void beginCrouch()
     {
         isCrouching = true;
-        transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
+        playerObj.localScale = new Vector3(playerObj.localScale.x, crouchYScale, playerObj.localScale.z);
         rb.AddForce(Vector3.down * 10f, ForceMode.Impulse);
         state = MovementState.crouching;
     }
 
     private void cancelCrouch()
     {
-        transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+        playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
         isCrouching = false;
     }
 
