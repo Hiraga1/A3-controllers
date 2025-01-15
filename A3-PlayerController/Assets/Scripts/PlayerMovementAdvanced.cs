@@ -8,6 +8,10 @@ public class PlayerMovementAdvanced : MonoBehaviour
     public InputHandler InputHandler => input;
 
     public bool IsRegister => input.HasInputActionMap;
+    public bool DidPressStart { private get; set; }
+
+    public bool IsReady => IsRegister && DidPressStart;
+    
 
     private Rigidbody rb;
     public Vector3 Velocity => rb.velocity;

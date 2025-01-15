@@ -26,7 +26,7 @@ namespace ScenesCanvas
             if (lockingUpdate) return;
             for (int i = 0; i < players.Length; i++)
             {
-                _playersState[i].text = players[i].IsRegister ? "Ready" : "Press start to ready";
+                _playersState[i].text = players[i].IsReady ? "Ready" : "Press start to ready";
             }
         }
     }

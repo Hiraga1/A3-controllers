@@ -66,8 +66,7 @@ public class GameManager : MonoBehaviour
             StartCoroutine(_introScene.Transition(
                 onBeginFade: () =>
                 {
-                    _readyScene.Init(players);
-                    _readyScene.gameObject.SetActive(true);
+                    showReadyScreen();
                 },
                 onDone: null));
         }
@@ -81,15 +80,8 @@ public class GameManager : MonoBehaviour
         inputManager.onPlayerJoined += input =>
         {
             var index = inputManager.playerCount - 1;
-            setPlayerReady(players[index], input);
+            setPlayerReady(players[index], input, autoSetStarted: true);
 
-            //var map = input.actions.FindActionMap("Player");
-            //map.FindAction("Join").performed += _ =>
-            //{
-            //    onPlyerPressJoin(index);
-            //};
-
-            //manage gameobject spawned
             input.gameObject.transform.parent = storeInput.transform;
             input.name = $"player ({index + 1}) input";
 
@@ -101,7 +93,7 @@ public class GameManager : MonoBehaviour
             }
         };
 
-        //new roud, already have full players
+        //new roud or new game, already have full players
         if (_storedPlayerInput.Count > 0)
         {
             _loadingSim.alpha = 1;
@@ -109,12 +101,22 @@ public class GameManager : MonoBehaviour
             for (int i = 0; i < players.Length; i++)
             {
                 var player = players[i];
+                player.DidPressStart = false;
                 var input = _storedPlayerInput[i];
 
-                setPlayerReady(player, input);
+                setPlayerReady(player, input, autoSetStarted: gameLog.Round > 0);
             }
-            StartCoroutine(openGameWhenFullPlayer());
-            //checkReadyPhase = true;
+            if (gameLog.Round > 0) StartCoroutine(openGameWhenFullPlayer());
+            else
+            {
+                StartCoroutine(transition(showReadyScreen));
+            }
+        }
+
+        void showReadyScreen()
+        {
+            _readyScene.Init(players);
+            _readyScene.gameObject.SetActive(true);
         }
 
         for (int i = 0; i < players.Length; i++)
@@ -122,35 +124,39 @@ public class GameManager : MonoBehaviour
             uiLogStates[i].Init(this, players[i]);
             uiLogStates[i].SetActiveReadyState(true);
         }
-
-        IEnumerator openGameWhenFullPlayer()
-        {
-            if (_readyScene.gameObject.activeSelf)
-            {
-                yield return new WaitForSeconds(0.5f); //wait a little bit for better smooth transition
-                _readyScene.LockUpdate();
-            }
-
-            yield return transition(onFullBlack: () =>
-            {
-                _readyScene.gameObject.SetActive(false);
-                _ingameScene.gameObject.SetActive(true);
-            });
-            //just for log
-            for (int i = 0; i < players.Length; i++)
-            {
-                uiLogStates[i].SetActiveReadyState(false);
-            }
-            //end for log
-
-            yield return countDownToStartGame(countDownTime);
-        }
     }
 
-    private void setPlayerReady(PlayerMovementAdvanced player, PlayerInput input)
+    private IEnumerator openGameWhenFullPlayer()
+    {
+        if (_readyScene.gameObject.activeSelf)
+        {
+            yield return new WaitForSeconds(0.5f); //wait a little bit for better smooth transition
+            _readyScene.LockUpdate();
+        }
+
+        yield return transition(onFullBlack: () =>
+        {
+            _readyScene.gameObject.SetActive(false);
+            _ingameScene.gameObject.SetActive(true);
+        });
+        //just for log
+        for (int i = 0; i < players.Length; i++)
+        {
+            uiLogStates[i].SetActiveReadyState(false);
+        }
+        //end for log
+
+        yield return countDownToStartGame(countDownTime);
+    }
+
+    private void setPlayerReady(PlayerMovementAdvanced player, PlayerInput input, bool autoSetStarted)
     {
         player.InputHandler.SetPlayerInput(input);
         player.InputHandler.SetEnable(false);
+        if (autoSetStarted)
+        {
+            player.DidPressStart = true;
+        }
     }
 
     //private void onPlyerPressJoin(int index)
@@ -300,18 +306,22 @@ public class GameManager : MonoBehaviour
                 _pauseScene.Pop();
             }
         }
-        else //set Ready
+        else if (gameLog.Round == 0 && gameLog.NewGameC > 0) //set Ready
         {
-            //int index = -1;
-            //for (int i = 0; i < players.Length; i++)
-            //{
-            //    if (players[i] == player)
-            //    {
-            //        index = i;
-            //        break;
-            //    }
-            //}
-            //if (index < 0) return;
+            int readyCount = 0;
+            for (int i = 0; i < players.Length; i++)
+            {
+                var player = players[i];
+                if (player.InputHandler == input)
+                {
+                    player.DidPressStart = true;
+                }
+                if (player.IsReady) readyCount++;
+            }
+            if (readyCount == players.Length)
+            {
+                StartCoroutine(openGameWhenFullPlayer());
+            }
         }
     }
 
