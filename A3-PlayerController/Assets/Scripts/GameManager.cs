@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ScenesCanvas.ReadyScene _readyScene;
     [SerializeField] private ScenesCanvas.InGameScene _ingameScene;
     [SerializeField] private ScenesCanvas.EndGameScene _endGameScene;
+    [SerializeField] private ScenesCanvas.PauseScene _pauseScene;
 
     [SerializeField] private CanvasGroup _loadingSim;
     [SerializeField] private AnimationCurve _loadingCurve;
@@ -55,6 +56,7 @@ public class GameManager : MonoBehaviour
         _readyScene.gameObject.SetActive(false);
         _ingameScene.gameObject.SetActive(false);
         _endGameScene.gameObject.SetActive(false);
+        _pauseScene.gameObject.SetActive(false);
 
         if (needIntro)
         {
@@ -205,7 +207,13 @@ public class GameManager : MonoBehaviour
         chaserBehaviour.freeze = true;
 
         //wait to unlock chaser
-        yield return new WaitForSeconds(freezeChaserTime);
+        var t = freezeChaserTime;
+        while (t >= 0)
+        {
+            t -= Time.deltaTime;
+            _ingameScene.ShowTimeUnlockChaser(t);
+            yield return null;
+        }
         players[chaserIndex].InputHandler.SetEnable(true);
         players[chaserIndex].freeze = false;
     }
@@ -239,6 +247,7 @@ public class GameManager : MonoBehaviour
 
         currentRoundTime = 0; //break point value for not run in Update
         isEndRound = true;
+        IsPlaying = false;
 
         if (chaserWin)
         {
@@ -279,6 +288,33 @@ public class GameManager : MonoBehaviour
         handleEndGame(true);
     }
 
+    public void NotifyPlayerPressPause(InputHandler input)
+    {
+        if (IsPlaying && !isEndRound) //pause Game
+        {
+            Debug.Log("Pause press");
+            if (_pauseScene.IsPausing) _pauseScene.UnPause(() => Time.timeScale = 1);
+            else
+            {
+                Time.timeScale = 0;
+                _pauseScene.Pop();
+            }
+        }
+        else //set Ready
+        {
+            //int index = -1;
+            //for (int i = 0; i < players.Length; i++)
+            //{
+            //    if (players[i] == player)
+            //    {
+            //        index = i;
+            //        break;
+            //    }
+            //}
+            //if (index < 0) return;
+        }
+    }
+
     private IEnumerator gameEndTransition(bool chaserWin)
     {
         _notifyTxt.transform.parent.gameObject.SetActive(true);
@@ -289,17 +325,20 @@ public class GameManager : MonoBehaviour
             bool isPlayer1Win;
             declareWinner(out isPlayer1Win);
             //trasition to result scene
-            float t = 2;
-            while (t >= 0)
-            {
-                t -= Time.deltaTime;
-                _ingameScene.ShowTimer($"Game end in: {t.NiceFloat(1)}");
-                
-                yield return null;
-            }
+            //float t = 2;
+            //while (t >= 0)
+            //{
+            //    t -= Time.deltaTime;
+            //    _ingameScene.ShowTimer($"Game end in: {t.NiceFloat(1)}");
 
-            _endGameScene.gameObject.SetActive(true);
-            _endGameScene.ShowResult(isPlayer1Win, openNewGame);
+            //    yield return null;
+            //}
+            yield return new WaitForSeconds(1);
+            yield return transition(() =>
+            {
+                _endGameScene.gameObject.SetActive(true);
+                _endGameScene.ShowResult(isPlayer1Win, openNewGame);
+            });
 
             void openNewGame()
             {
@@ -317,8 +356,6 @@ public class GameManager : MonoBehaviour
                 //timerText.gameObject.SetActive(t > 0);
                 yield return null;
             }
-
-            //UnityEngine.SceneManagement.SceneManager.LoadScene(0);
             SceneManager.LoadScene(0);
         }
     }

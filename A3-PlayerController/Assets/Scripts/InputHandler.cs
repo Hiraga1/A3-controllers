@@ -7,6 +7,7 @@ public class InputHandler : MonoBehaviour
 {
     private InputActionMap playerControls;
     public bool HasInputActionMap => playerControls != null;
+    private InputActionMap commonControl;
 
     private InputAction movementInput;
     public Vector2 MovementInput => movementInput != null ? movementInput.ReadValue<Vector2>() : Vector2.zero;
@@ -44,6 +45,7 @@ public class InputHandler : MonoBehaviour
         public const string Crouch = "Crouch";
         public const string Slide = "Slide";
         public const string Dash = "Dash";
+        public const string JoinOrPause = "Join";
     }
 
     private PlayerInput currentInput;
@@ -73,6 +75,10 @@ public class InputHandler : MonoBehaviour
 
         playerControls.FindAction(ActionName.Dash).performed += handleDashInput;
 
+        commonControl = input.actions.FindActionMap("Common");
+        commonControl.Enable();
+        commonControl.FindAction(ActionName.JoinOrPause).performed += pressPause;
+
         foreach (var cam in _storedCams)
         {
             setupCinemachineControl(cam);
@@ -97,6 +103,8 @@ public class InputHandler : MonoBehaviour
         playerControls.FindAction(ActionName.Slide).canceled -= handleSlideInput;
 
         playerControls.FindAction(ActionName.Dash).performed -= handleDashInput;
+
+        commonControl.FindAction(ActionName.JoinOrPause).performed -= pressPause;
     }
 
     public void SetEnable(bool value)
@@ -263,6 +271,11 @@ public class InputHandler : MonoBehaviour
     }
 
     #endregion Dash
+
+    private void pressPause(InputAction.CallbackContext context)
+    {
+        GameManager.Instance.NotifyPlayerPressPause(this);
+    }
 
     private void log(string s)
     {
